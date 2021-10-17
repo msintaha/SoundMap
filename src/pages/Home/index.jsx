@@ -17,8 +17,8 @@ class Home extends React.Component {
   render() {
     return (
       <div className="home">
-        <h1>Latte</h1>
-        <h5>A React boilerplate</h5>
+        <h1>SoundMap</h1>
+        <h5>A vis tool for exploring multi attribute sound datasets</h5>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 # SoundMap
-A React frontend boilerplate pluggable to any backend
+A vis tool for exploring multi attribute sound datasets
 
 ### Setup
 - Node version >=12

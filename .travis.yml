@@ -1,0 +1,22 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  -  docker build -t msintaha/latte -f Dockerfile.dev .
+
+script:
+  - docker run msintaha/latte yarn test
+
+# deploy:
+#   edge: true
+#   provider: elasticbeanstalk
+#   region: "us-east-1"
+#   app: "docker-latte" # Project name of your elastic beanstalk
+#   env: "Docker-env"
+#   bucket_name: "<Replace with name of bucket in s3>"
+#   bucket_path: "docker-latte"
+#   on:
+#     branch: master
+#   access_key_id: $AWS_ACCESS_KEY # Stored in your travis-ci env variables
+#   secret_access_key: $AWS_SECRET_KEY # Stored in your travis-ci env variables

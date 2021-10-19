@@ -1,0 +1,8 @@
+.sm-Header {
+    &-title {
+        margin-left: 4px;
+        background: -webkit-radial-gradient(#0065FF, #FF6666);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+}

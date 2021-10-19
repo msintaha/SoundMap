@@ -2,7 +2,7 @@ import React from 'react';
 import './app.scss';
 
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
 import Header from './components/Header';
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
       <Header />
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" component={Home} />
+          <Route exact path="/" component={Dashboard} />
         </Switch>
       </BrowserRouter>
     </React.Fragment>

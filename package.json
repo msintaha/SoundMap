@@ -13,6 +13,8 @@
   "author": "Mifta Sintaha",
   "license": "MIT",
   "dependencies": {
+    "@emotion/react": "^11.5.0",
+    "@emotion/styled": "^11.3.0",
     "@mui/material": "^5.0.4",
     "axios": "^0.19.0",
     "babel-polyfill": "^6.26.0",

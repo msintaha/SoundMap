@@ -1,55 +1,210 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
+import { getCategoryLevels } from '../../utils/attributes';
 
-function Overview({ data }) {
-    useEffect(() => {
-      const margin = {top: 10, right: 30, bottom: 30, left: 60},
-        width = 460 - margin.left - margin.right,
-        height = 600 - margin.top - margin.bottom;
+function Overview({ attributeTypes, data }) {
+  const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[0]);
+  const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+
+  useEffect(() => {
+    const margin = {top: 20, right: 95, bottom: 10, left: 100},
+      width = 850 - margin.left - margin.right;
+    const ordinalAttrLevels = getCategoryLevels(yAxisAttr, data);
+    const lastIndex = ordinalAttrLevels.length - 1;
+    ordinalAttrLevels.forEach((yAxisLabel, index) => {
+      BeeswarmChart(data.filter(d => d.Stimulus === yAxisLabel), {
+        x: d => Number(d[xAxisAttr]),
+        label: xAxisAttr,
+        type: d3.scaleLinear,
+        width,
+        showScale: index === lastIndex,
+        yLabel: yAxisLabel
+      })
+    });
+  }, [xAxisAttr, yAxisAttr]);
+
+  function BeeswarmChart(data, {
+    value = d => d, // convience alias for x
+    label, // convenience alias for xLabel
+    type = d3.scaleLinear, // convenience alias for xType
+    domain, // convenience alias for xDomain
+    x = value, // given d in data, returns the quantitative x value
+    radius = 5, // (fixed) radius of the circles
+    padding = 1.5, // (fixed) padding between the circles
+    marginTop = 30, // top margin, in pixels
+    marginRight = 20, // right margin, in pixels
+    marginBottom = 30, // bottom margin, in pixels
+    marginLeft = 20, // left margin, in pixels
+    width = 640, // outer width, in pixels
+    height, // outer height, in pixels
+    xType = type, // type of x-scale, e.g. d3.scaleLinear
+    xLabel = label, // a label for the x-axis
+    xDomain = domain, // [xmin, xmax]
+    xRange = [marginLeft, width - marginRight], // [left, right]
+    yLabel,
+    showScale
+  } = {}) {
+    // Compute values.
+    const X = d3.map(data, x).map(x => x == null ? NaN : +Number(x));
     
-      // append the svg object to the body of the page
-      const svg = d3.select("#overview")
+    // Compute which data points are considered defined.
+    const I = d3.range(X.length).filter(i => !isNaN(X[i]));
+  
+    // Compute default domains.
+    if (xDomain === undefined) xDomain = d3.extent(X);
+  
+    // Construct scales and axes.
+    const xScale = xType(xDomain, xRange);
+    const xAxis = d3.axisBottom(xScale).ticks(5, ".1f").tickSizeOuter(0);
+    const yScale = d3.scaleOrdinal([yLabel], [yLabel]);
+    const yAxis = d3.axisLeft(xScale).tickSizeOuter(0);
+  
+    // Compute the y-positions.
+    const Y = dodge(I.map(i => xScale(X[i])), radius * 2 + padding);
+
+
+    // Compute the default height;
+    if (height === undefined) height = d3.max(Y) + (radius + padding) * 2 + marginTop + marginBottom;
+  
+    // Given an array of x-values and a separation radius, returns an array of y-values.
+    function dodge(X, radius) {
+      const Y = new Float64Array(X.length);
+      const radius2 = radius ** 2;
+      const epsilon = 1e-3;
+      let head = null, tail = null;
+    
+      // Returns true if circle ⟨x,y⟩ intersects with any circle in the queue.
+      function intersects(x, y) {
+        let a = head;
+        while (a) {
+          const ai = a.index;
+          if (radius2 - epsilon > (X[ai] - x) ** 2 + (Y[ai] - y) ** 2) return true;
+          a = a.next;
+        }
+        return false;
+      }
+    
+      // Place each circle sequentially.
+      for (const bi of d3.range(X.length).sort((i, j) => X[i] - X[j])) {
+  
+        // Remove circles from the queue that can’t intersect the new circle b.
+        while (head && X[head.index] < X[bi] - radius2) head = head.next;
+    
+        // Choose the minimum non-intersecting tangent.
+        if (intersects(X[bi], Y[bi] = 0)) {
+          let a = head;
+          Y[bi] = Infinity;
+          do {
+            const ai = a.index;
+            let y = Y[ai] + Math.sqrt(radius2 - (X[ai] - X[bi]) ** 2);
+            if (y < Y[bi] && !intersects(X[bi], y)) Y[bi] = y;
+            a = a.next;
+          } while (a);
+        }
+    
+        // Add b to the queue.
+        const b = {index: bi, next: null};
+        if (head === null) head = tail = b;
+        else tail = tail.next = b;
+      }
+    
+      return Y;
+    }
+  
+    const svg = d3.select("#beeswarm")
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height])
+        .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
-      //Read the data
-      console.log(data);
-      // Add X axis
-      const x = d3.scaleLinear()
-        .domain([0, 4000])
-        .range([ 0, width ]);
+    if (showScale) {
       svg.append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(x));
-
-      // Add Y axis
-      const y = d3.scaleOrdinal()
-        .domain([0, 500000])
-        .range([ height, 0]);
+        .attr("transform", `translate(0,${height - marginBottom})`)
+        .call(xAxis)
+        .call(g => g.append("text")
+            .attr("x", width)
+            .attr("y", marginBottom - 4)
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "end")
+            .text(xLabel));
+    } else {
       svg.append("g")
-        .call(d3.axisLeft(y));
+        .attr("transform", `translate(0,${height - marginBottom})`)
+        .call(g => g.append("text")
+            .attr("x", width)
+            .attr("y", marginBottom - 4)
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "end"))
+            .call(g => g.select(".domain").remove());
+    }
 
-      // Add dots
-      svg.append('g')
-      .selectAll("dot")
-      .data(data)
+    svg.append("text")
+      .attr("class", "yLabel")
+      .attr("text-anchor", "start")
+      .attr("x", 0)
+      .attr("y", 8)
+      .attr("dy", ".5em")
+      .text(yLabel);
+
+    const Tooltip = d3.select('#beeswarm')
+      .append("div")
+      .attr("class", 'popover');
+
+    const mouseover = function(d) {
+      Tooltip
+        .style("opacity", 1)
+      d3.select(this)
+        .style("stroke", "black")
+        .style("opacity", 1)
+    }
+    const mousemove = function(event) {
+      Tooltip
+        .html(`<strong>${xLabel}</strong>: ` + X[event.srcElement.__data__])
+        .style("left", `${event.pageX - 30}` + "px")
+        .style("top", `${event.pageY - 118}` + "px")
+    }
+    const mouseleave = function(d) {
+      Tooltip
+        .style("opacity", 0)
+      d3.select(this)
+        .style("stroke", "none")
+        .style("opacity", 0.8)
+    }
+
+  
+    svg.append("g")
+      .selectAll("circle")
+      .attr("class", "values")
+      .data(I)
       .join("circle")
-          .attr("cx", function (d) { console.log(d); return x(d.Sex); } )
-          .attr("cy", function (d) { return y(d.Breed); } )
-          .attr("r", 2)
-          .style("fill", "#0065FF")
-    }, []);
+        .attr("cx", i => xScale(X[i]))
+        .attr("cy", i => height - marginBottom - radius - padding - Y[i])
+        .attr("r", radius)
+        .attr("fill", "#FF6666")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave);
+  
+    return svg.node();
+  }
 
   return (
     <div className="sm-Overview">
-      <div id="overview"></div>
+      <div id="beeswarm"></div>
     </div>
   );
+}
+
+Overview.propTypes = {
+  attributeTypes: PropTypes.shape({
+    listical: PropTypes.array,
+    ordinal: PropTypes.array,
+    quantitative: PropTypes.array,
+  }),
+  data: PropTypes.array,
 }
 
 export default Overview;

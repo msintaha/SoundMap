@@ -2,25 +2,32 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
-import { getCategoryLevels } from '../../utils/attributes';
+import { COLORS, getCategoryLevels } from '../../utils/attributes';
 
 function Overview({ attributeTypes, data }) {
   const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[0]);
   const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
 
   useEffect(() => {
     const margin = {top: 20, right: 95, bottom: 10, left: 100},
       width = 850 - margin.left - margin.right;
     const ordinalAttrLevels = getCategoryLevels(yAxisAttr, data);
+    const categoryToFilterByAttrLevels = getCategoryLevels(categoryToFilterBy, data);
     const lastIndex = ordinalAttrLevels.length - 1;
+    const colorPalette = _.shuffle(COLORS);
     ordinalAttrLevels.forEach((yAxisLabel, index) => {
-      BeeswarmChart(data.filter(d => d.Stimulus === yAxisLabel), {
+      BeeswarmChart(data.filter(d => d[yAxisAttr] === yAxisLabel), {
         x: d => Number(d[xAxisAttr]),
         label: xAxisAttr,
         type: d3.scaleLinear,
         width,
+        radius: 4,
         showScale: index === lastIndex,
-        yLabel: yAxisLabel
+        yLabel: yAxisLabel,
+        colorCategory: categoryToFilterBy,
+        colorCategoryLevels: categoryToFilterByAttrLevels,
+        colorPalette
       })
     });
   }, [xAxisAttr, yAxisAttr]);
@@ -33,10 +40,10 @@ function Overview({ attributeTypes, data }) {
     x = value, // given d in data, returns the quantitative x value
     radius = 5, // (fixed) radius of the circles
     padding = 1.5, // (fixed) padding between the circles
-    marginTop = 30, // top margin, in pixels
+    marginTop = 20, // top margin, in pixels
     marginRight = 20, // right margin, in pixels
-    marginBottom = 30, // bottom margin, in pixels
-    marginLeft = 20, // left margin, in pixels
+    marginBottom = 20, // bottom margin, in pixels
+    marginLeft = 30, // left margin, in pixels
     width = 640, // outer width, in pixels
     height, // outer height, in pixels
     xType = type, // type of x-scale, e.g. d3.scaleLinear
@@ -44,7 +51,10 @@ function Overview({ attributeTypes, data }) {
     xDomain = domain, // [xmin, xmax]
     xRange = [marginLeft, width - marginRight], // [left, right]
     yLabel,
-    showScale
+    showScale,
+    colorCategory,
+    colorCategoryLevels,
+    colorPalette
   } = {}) {
     // Compute values.
     const X = d3.map(data, x).map(x => x == null ? NaN : +Number(x));
@@ -66,7 +76,7 @@ function Overview({ attributeTypes, data }) {
 
 
     // Compute the default height;
-    if (height === undefined) height = d3.max(Y) + (radius + padding) * 2 + marginTop + marginBottom;
+    if (height === undefined) height = d3.max(Y) + (radius + padding) * 2 + marginTop + marginBottom + 5;
   
     // Given an array of x-values and a separation radius, returns an array of y-values.
     function dodge(X, radius) {
@@ -116,7 +126,7 @@ function Overview({ attributeTypes, data }) {
     const svg = d3.select("#beeswarm")
         .append("svg")
         .attr("width", width)
-        .attr("height", height)
+        .attr("height", height + 10)
         .attr("viewBox", [0, 0, width, height])
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
@@ -126,7 +136,7 @@ function Overview({ attributeTypes, data }) {
         .call(xAxis)
         .call(g => g.append("text")
             .attr("x", width)
-            .attr("y", marginBottom - 4)
+            .attr("y", marginBottom + 5)
             .attr("fill", "currentColor")
             .attr("text-anchor", "end")
             .text(xLabel));
@@ -153,7 +163,7 @@ function Overview({ attributeTypes, data }) {
       .append("div")
       .attr("class", 'popover');
 
-    const mouseover = function(d) {
+    const mouseover = function(event) {
       Tooltip
         .style("opacity", 1)
       d3.select(this)
@@ -161,12 +171,14 @@ function Overview({ attributeTypes, data }) {
         .style("opacity", 1)
     }
     const mousemove = function(event) {
+      const key = event.srcElement.__data__;
       Tooltip
-        .html(`<strong>${xLabel}</strong>: ` + X[event.srcElement.__data__])
+        .html(`<strong>${xLabel}</strong>: ${X[key]}` 
+          + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[key][colorCategory]}` : ''))
         .style("left", `${event.pageX - 30}` + "px")
-        .style("top", `${event.pageY - 118}` + "px")
+        .style("top", `${event.pageY - 90}` + "px")
     }
-    const mouseleave = function(d) {
+    const mouseleave = function(event) {
       Tooltip
         .style("opacity", 0)
       d3.select(this)
@@ -174,20 +186,26 @@ function Overview({ attributeTypes, data }) {
         .style("opacity", 0.8)
     }
 
-  
+    let color;
+    if (colorCategory && colorCategoryLevels.length) {
+      color = d3.scaleOrdinal()
+        .domain(colorCategoryLevels)
+        .range(colorPalette.slice(0, colorCategoryLevels.length));
+    }
+
     svg.append("g")
       .selectAll("circle")
       .attr("class", "values")
       .data(I)
       .join("circle")
-        .attr("cx", i => xScale(X[i]))
-        .attr("cy", i => height - marginBottom - radius - padding - Y[i])
-        .attr("r", radius)
-        .attr("fill", "#FF6666")
-        .on("mouseover", mouseover)
-        .on("mousemove", mousemove)
-        .on("mouseleave", mouseleave);
-  
+      .attr("cx", i => xScale(X[i]))
+      .attr("cy", i => height - marginBottom - radius - padding - Y[i])
+      .attr("r", radius)
+      .style("fill", colorCategory ? d => color(data[d][colorCategory]) : "#66cccc")
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave);
+
     return svg.node();
   }
 

@@ -15,7 +15,10 @@ function getRangeWithValues(attributeName, data) {
     return { min: _.min(values), max: _.max(values), values };
 }
 
+const COLORS = ['#e6194B', '#f58231', '#ffe119', '#fabed4', '#3cb44b', '#911eb4', '#4363d8', '#aaffc3']
+
 export {
+    COLORS,
     getCategoryLevels,
     getRangeWithValues,
 };

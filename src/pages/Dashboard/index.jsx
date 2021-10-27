@@ -31,23 +31,8 @@ function Dashboard() {
 
   return (
     <React.Fragment>
-      <Header />
+      <Header onFileUpload={onFileUpload} />
       <div className="sm-Dashboard">
-        <Button
-          className="sm-Dashboard-upload"
-          size="small"
-          variant="contained"
-          component="label"
-        >
-          Upload File
-          <input
-            onChange={onFileUpload}
-            type="file"
-            accept=".csv"
-            hidden
-          />
-        </Button>
-        <br />
         {(!!data.length && !_.isEmpty(attributeTypes)) && <Overview attributeTypes={attributeTypes} data={data} />}
       </div>
     </React.Fragment>

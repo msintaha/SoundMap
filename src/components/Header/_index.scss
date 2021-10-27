@@ -5,4 +5,8 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
+
+    &-button {
+        text-transform: capitalize !important;
+    }
 }

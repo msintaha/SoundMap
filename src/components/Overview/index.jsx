@@ -8,14 +8,14 @@ function Overview({ attributeTypes, data }) {
   const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[0]);
   const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
+  const colorPalette = _.shuffle(COLORS);
+  const margin = {top: 20, right: 95, bottom: 10, left: 100},
+      width = 800 - margin.left - margin.right;
 
   useEffect(() => {
-    const margin = {top: 20, right: 95, bottom: 10, left: 100},
-      width = 850 - margin.left - margin.right;
     const ordinalAttrLevels = getCategoryLevels(yAxisAttr, data);
     const categoryToFilterByAttrLevels = getCategoryLevels(categoryToFilterBy, data);
     const lastIndex = ordinalAttrLevels.length - 1;
-    const colorPalette = _.shuffle(COLORS);
     ordinalAttrLevels.forEach((yAxisLabel, index) => {
       BeeswarmChart(data.filter(d => d[yAxisAttr] === yAxisLabel), {
         x: d => Number(d[xAxisAttr]),
@@ -211,7 +211,18 @@ function Overview({ attributeTypes, data }) {
 
   return (
     <div className="sm-Overview">
-      <div id="beeswarm"></div>
+      <div id="beeswarm">
+        {categoryToFilterBy && 
+          <div className="sm-Overview-legends" style={{ width }}>
+            {getCategoryLevels(categoryToFilterBy, data).map((category, index) =>
+              <div className="sm-Overview-legend">
+                <span className="sm-Overview-legendColor" style={{ color: colorPalette[index] }}>&#9679;</span>
+                {category}
+              </div>
+            )}
+          </div>
+        }
+      </div>
     </div>
   );
 }

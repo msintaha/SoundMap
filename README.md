@@ -6,6 +6,7 @@ A vis tool for exploring multi attribute sound datasets
 - Install yarn using `npm i -g yarn`
 - Install packages using `yarn install`
 - Run the app using `yarn start`
+    - Note: for Windows, must use http://localhost:8080/ instead of the default http://0.0.0.0:8080/
 
 ### Manual Deployment
 - In webpack.prod.js, replace the `<YOUR_FRONTEND_CLIENT>` with the actual domain path

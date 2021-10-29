@@ -20,8 +20,8 @@ function Dashboard() {
       const text = e.target.result;
       setData(d3.csvParse(text));
       setAttributeTypes({
-        ordinal: ['Stimulus', 'Breed', 'Sex'],
-        quantitative: ['Duration', 'Fundamental Frequency'],
+        ordinal: ['stimulus', 'breed', 'sex'],
+        quantitative: ['meow_duration', 'est_peak_frequency', 'est_fundamental_mean', 'est_fundamental_min', 'est_fundamental_max'],
         listical: []
       });
     }

@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import { COLORS, getCategoryLevels } from '../../utils/attributes';
 
 function Overview({ attributeTypes, data }) {
-  const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[0]);
+  const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[1]);
   const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
   const colorPalette = _.shuffle(COLORS);
@@ -136,7 +136,7 @@ function Overview({ attributeTypes, data }) {
         .call(xAxis)
         .call(g => g.append("text")
             .attr("x", width)
-            .attr("y", marginBottom + 5)
+            .attr("y", marginBottom + 3)
             .attr("fill", "currentColor")
             .attr("text-anchor", "end")
             .text(xLabel));
@@ -176,7 +176,7 @@ function Overview({ attributeTypes, data }) {
         .html(`<strong>${xLabel}</strong>: ${X[key]}` 
           + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[key][colorCategory]}` : ''))
         .style("left", `${event.pageX - 30}` + "px")
-        .style("top", `${event.pageY - 90}` + "px")
+        .style("top", `${event.pageY - 70}` + "px")
     }
     const mouseleave = function(event) {
       Tooltip

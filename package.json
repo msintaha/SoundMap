@@ -4,9 +4,9 @@
   "description": "A react flavor to your drink",
   "main": "public/index.html",
   "scripts": {
-    "production": "webpack-dev-server --config webpack.prod.js --host 0.0.0.0 --port 8080",
+    "production": "webpack-dev-server --config webpack.prod.js --host localhost --port 8080",
     "build": "webpack --config webpack.prod.js",
-    "start": "webpack-dev-server --config webpack.dev.js --host 0.0.0.0 --port 8080",
+    "start": "webpack-dev-server --config webpack.dev.js --host localhost --port 8080",
     "test": "mocha --require @babel/register --require src/test/helper.js --require src/test/dom.js --require ignore-styles 'src/**/**/*.spec.js'",
     "test-watch": "npm run test -- --watch"
   },

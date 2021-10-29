@@ -32,7 +32,7 @@ module.exports = merge(common, {
     ],
     public: '<YOUR_FRONTEND_CLIENT>', // your app url
     port: 8080,
-    host: '0.0.0.0',
+    host: 'localhost',
     disableHostCheck: true,
     contentBase: '.',
     historyApiFallback: true,

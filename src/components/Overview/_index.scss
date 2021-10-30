@@ -71,6 +71,14 @@
        font-weight: 600;
     }
 
+    &-rangeSlider {
+        margin-left: 8px;
+
+        label {
+            font-size: 12px;
+        }
+    }
+
     &-legends {
         display: flex;
         justify-content: center;

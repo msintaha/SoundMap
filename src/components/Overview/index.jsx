@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 
 import { COLORS, getCategoryLevels, getRangeWithValues } from '../../utils/attributes';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Input, Select, MenuItem } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Slider, Select, MenuItem } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
@@ -100,7 +100,6 @@ function Overview({ attributeTypes, data }) {
   
     // Compute default domains.
     if (xDomain === undefined) xDomain = d3.extent(X);
-    console.log(xDomain);
     // Construct scales and axes.
     const xScale = xType(xDomain, xRange);
     const xAxis = d3.axisBottom(xScale).ticks(5, ".1f").tickSizeOuter(0);
@@ -237,7 +236,7 @@ function Overview({ attributeTypes, data }) {
       .attr("cx", i => xScale(X[i]))
       .attr("cy", i => height - marginBottom - radius - padding - Y[i])
       .attr("r", radius)
-      .style("fill", colorCategory ? d => color(data[d][colorCategory]) : "#66cccc")
+      .style("fill", colorCategory ? d => color(data[d][colorCategory]) : "#0065FF")
       .on("mouseover", mouseover)
       .on("mousemove", mousemove)
       .on("mouseleave", mouseleave);
@@ -263,14 +262,17 @@ function Overview({ attributeTypes, data }) {
               {attributeTypes.quantitative.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
             </Select>
           </FormControl>
-          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
-            <InputLabel>Min</InputLabel>
-            <Input size="small" type="number" />
-          </FormControl>
-          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
-            <InputLabel>Max</InputLabel>
-            <Input size="small" type="number" />
-          </FormControl>
+          <div className="sm-Overview-rangeSlider">
+            <label>Range of values in X-Axis</label>
+            <Slider
+              getAriaLabel={() => 'Quantitative attribute range'}
+              value={[0, 20]}
+              // onChange={handleChange}
+              valueLabelDisplay="auto"
+              // getAriaValueText={value}
+            />
+          </div>
+          <hr />
           <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
             <InputLabel>Y-Axis</InputLabel>
             <Select
@@ -286,6 +288,7 @@ function Overview({ attributeTypes, data }) {
           <FormGroup className="sm-Overview-checkboxes">
             {yAxisLevels.map(level => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
           </FormGroup>
+          <hr />
           <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
             <InputLabel>Filter By</InputLabel>
             <Select

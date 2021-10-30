@@ -2,21 +2,46 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
-import { COLORS, getCategoryLevels } from '../../utils/attributes';
+import _ from 'lodash';
+
+import { COLORS, getCategoryLevels, getRangeWithValues } from '../../utils/attributes';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Input, Select, MenuItem } from '@mui/material';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import CloseOutlined from '@mui/icons-material/CloseOutlined';
+
 
 function Overview({ attributeTypes, data }) {
+  const [panelWidth, setPanelWidth] = useState(0);
   const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[1]);
   const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [colorPalette, setColorPalette] = useState(_.shuffle(COLORS));
+  const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
-  const colorPalette = _.shuffle(COLORS);
+  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data)));
   const margin = {top: 20, right: 95, bottom: 10, left: 100},
       width = 800 - margin.left - margin.right;
 
   useEffect(() => {
-    const ordinalAttrLevels = getCategoryLevels(yAxisAttr, data);
-    const categoryToFilterByAttrLevels = getCategoryLevels(categoryToFilterBy, data);
-    const lastIndex = ordinalAttrLevels.length - 1;
-    ordinalAttrLevels.forEach((yAxisLabel, index) => {
+    const newYAxisLvl = toCheckboxObject(getCategoryLevels(yAxisAttr, data));
+    const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data));
+    setYAxisLevels(newYAxisLvl);
+    setFilterCategoryLevels(newFilterCategoryLvl);
+    renderChart(newYAxisLvl, newFilterCategoryLvl);
+  }, [xAxisAttr, yAxisAttr, categoryToFilterBy]);
+
+  useEffect(() => {
+    renderChart(yAxisLevels, filterCategoryLevels);
+  }, [yAxisLevels, filterCategoryLevels]);
+
+  function renderChart(yAxisLevels, filterCategoryLevels) {
+    const lastIndex = yAxisLevels.length - 1;
+    const xRange = getRangeWithValues(xAxisAttr, data);
+    const svg = d3.select("#beeswarm").selectAll('svg');
+    if (svg._groups.length > 0) { d3.selectAll("#beeswarm > svg").remove(); }
+    const shuffledColorPalette = _.shuffle(colorPalette);
+    setColorPalette(shuffledColorPalette);
+
+    yAxisLevels.filter(y => y.checked).map(y => y.value).forEach((yAxisLabel, index) => {
       BeeswarmChart(data.filter(d => d[yAxisAttr] === yAxisLabel), {
         x: d => Number(d[xAxisAttr]),
         label: xAxisAttr,
@@ -26,11 +51,22 @@ function Overview({ attributeTypes, data }) {
         showScale: index === lastIndex,
         yLabel: yAxisLabel,
         colorCategory: categoryToFilterBy,
-        colorCategoryLevels: categoryToFilterByAttrLevels,
-        colorPalette
+        colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
+        colorPalette: shuffledColorPalette,
+        xDomain: [xRange.min, xRange.max]
       })
     });
-  }, [xAxisAttr, yAxisAttr]);
+  }
+
+  function setChecked(event, value, data, setFn) {
+    const newData = data.map(d => {
+      if (d.value === value) {
+        d.checked = event.target.checked;
+      }
+      return d;
+    });
+    setFn(newData);
+  }
 
   function BeeswarmChart(data, {
     value = d => d, // convience alias for x
@@ -64,7 +100,7 @@ function Overview({ attributeTypes, data }) {
   
     // Compute default domains.
     if (xDomain === undefined) xDomain = d3.extent(X);
-  
+    console.log(xDomain);
     // Construct scales and axes.
     const xScale = xType(xDomain, xRange);
     const xAxis = d3.axisBottom(xScale).ticks(5, ".1f").tickSizeOuter(0);
@@ -122,7 +158,7 @@ function Overview({ attributeTypes, data }) {
     
       return Y;
     }
-  
+    
     const svg = d3.select("#beeswarm")
         .append("svg")
         .attr("width", width)
@@ -190,7 +226,7 @@ function Overview({ attributeTypes, data }) {
     if (colorCategory && colorCategoryLevels.length) {
       color = d3.scaleOrdinal()
         .domain(colorCategoryLevels)
-        .range(colorPalette.slice(0, colorCategoryLevels.length));
+        .range(_.clone(colorPalette).slice(0, colorCategoryLevels.length));
     }
 
     svg.append("g")
@@ -211,13 +247,71 @@ function Overview({ attributeTypes, data }) {
 
   return (
     <div className="sm-Overview">
+      <div className="sm-Overview-filterpanel" style={{width: panelWidth}}>
+        <h6>&nbsp;Filter Panel</h6>
+        <IconButton size="small" className="sm-Overview-filterpanelClose" onClick={() => setPanelWidth(0)}><CloseOutlined fontSize="inherit" /></IconButton>
+        <div className="sm-Overview-filters">
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+            <InputLabel>X-Axis</InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              value={xAxisAttr}
+              onChange={({target}) => setXAxis(target.value)}
+              label="X-Axis"
+            >
+              {attributeTypes.quantitative.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+            </Select>
+          </FormControl>
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+            <InputLabel>Min</InputLabel>
+            <Input size="small" type="number" />
+          </FormControl>
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+            <InputLabel>Max</InputLabel>
+            <Input size="small" type="number" />
+          </FormControl>
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+            <InputLabel>Y-Axis</InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              value={yAxisAttr}
+              onChange={({target}) => setYAxis(target.value)}
+              label="Y-Axis"
+            >
+              {attributeTypes.ordinal.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+            </Select>
+          </FormControl>
+          <FormGroup className="sm-Overview-checkboxes">
+            {yAxisLevels.map(level => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
+          </FormGroup>
+          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+            <InputLabel>Filter By</InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              value={categoryToFilterBy || 'None'}
+              onChange={({target}) => setCategoryToFilterBy(target.value)}
+              label="Filter By"
+            >
+              <MenuItem value="">None</MenuItem>
+              {attributeTypes.ordinal.filter(a => a !== yAxisAttr).map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+            </Select>
+          </FormControl>
+          <FormGroup className="sm-Overview-checkboxes">
+            {filterCategoryLevels.map(level => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, filterCategoryLevels, setFilterCategoryLevels)} checked={level.checked} />} label={level.value} />)}
+          </FormGroup>
+        </div>
+      </div>
+      <IconButton className="sm-Overview-filter" onClick={() => setPanelWidth(230)}><FilterAltIcon /></IconButton>
       <div id="beeswarm">
         {categoryToFilterBy && 
           <div className="sm-Overview-legends" style={{ width }}>
-            {getCategoryLevels(categoryToFilterBy, data).map((category, index) =>
-              <div className="sm-Overview-legend">
+            {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
+              <div key={category.value} className="sm-Overview-legend">
                 <span className="sm-Overview-legendColor" style={{ color: colorPalette[index] }}>&#9679;</span>
-                {category}
+                {category.value}
               </div>
             )}
           </div>
@@ -225,6 +319,10 @@ function Overview({ attributeTypes, data }) {
       </div>
     </div>
   );
+}
+
+function toCheckboxObject(arr) {
+  return arr.map(a => ({ value: a, checked: true }));
 }
 
 Overview.propTypes = {

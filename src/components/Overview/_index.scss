@@ -1,6 +1,49 @@
 .sm-Overview {
     margin-top: 0;
     position: relative;
+    border: 1px dashed #dedede;
+    padding: 8px;
+    border-radius: 4px;
+
+    &-filterpanel {
+        height: 100%; /* 100% Full-height */
+        width: 0; /* 0 width - change this with JavaScript */
+        position: absolute; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        overflow-x: hidden; /* Disable horizontal scroll */
+        transition: 0.3s;
+        margin: -8px;
+        min-height: 100%;
+        background-color: #f9f9f9;
+        border-right: 1px dashed #dedede;
+        display: flex;
+        flex-direction: column;
+        
+        h6 {
+            margin: 10px;
+        }
+    }
+
+    &-filterpanelClose {
+        position: absolute !important;
+        left: 200px;
+        top: 0;
+        font-size: 25px;
+    }
+
+    &-filters {
+        padding: 10px;
+    }
+
+    &-filter {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+    }
+
+    &-checkboxes {
+        margin: 12px 0 12px 6px;
+    }
 
     #beeswarm {
         display: flex;

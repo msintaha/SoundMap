@@ -1,0 +1,4 @@
+Flask==2.0.2
+livereload==2.6.3
+librosa==0.8.1
+flask-cors==3.0.10

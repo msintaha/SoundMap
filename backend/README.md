@@ -3,7 +3,7 @@
 ## Creating virtual environment
 
 ### Using conda
-= `conda create --name venv`
+- `conda create --name venv`
 - `conda activate venv`
 - `conda install --file requirements.txt`
 

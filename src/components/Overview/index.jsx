@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 
 import { COLORS, getCategoryLevels, getRangeWithValues } from '../../utils/attributes';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Slider, Select, MenuItem } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Select, MenuItem, Input } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
@@ -14,6 +14,7 @@ function Overview({ attributeTypes, data }) {
   const [panelWidth, setPanelWidth] = useState(0);
   const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[1]);
   const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
   const [colorPalette, setColorPalette] = useState(_.shuffle(COLORS));
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
@@ -26,16 +27,15 @@ function Overview({ attributeTypes, data }) {
     const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data));
     setYAxisLevels(newYAxisLvl);
     setFilterCategoryLevels(newFilterCategoryLvl);
-    renderChart(newYAxisLvl, newFilterCategoryLvl);
+    renderChart(newYAxisLvl, newFilterCategoryLvl, range);
   }, [xAxisAttr, yAxisAttr, categoryToFilterBy]);
 
   useEffect(() => {
-    renderChart(yAxisLevels, filterCategoryLevels);
-  }, [yAxisLevels, filterCategoryLevels]);
+    renderChart(yAxisLevels, filterCategoryLevels, range);
+  }, [yAxisLevels, filterCategoryLevels, range]);
 
-  function renderChart(yAxisLevels, filterCategoryLevels) {
+  function renderChart(yAxisLevels, filterCategoryLevels, range) {
     const lastIndex = yAxisLevels.length - 1;
-    const xRange = getRangeWithValues(xAxisAttr, data);
     const svg = d3.select("#beeswarm").selectAll('svg');
     if (svg._groups.length > 0) { d3.selectAll("#beeswarm > svg").remove(); }
     const shuffledColorPalette = _.shuffle(colorPalette);
@@ -47,13 +47,13 @@ function Overview({ attributeTypes, data }) {
         label: xAxisAttr,
         type: d3.scaleLinear,
         width,
-        radius: 4,
+        radius: 3,
         showScale: index === lastIndex,
         yLabel: yAxisLabel,
         colorCategory: categoryToFilterBy,
         colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
         colorPalette: shuffledColorPalette,
-        xDomain: [xRange.min, xRange.max]
+        xDomain: [range.min, range.max]
       })
     });
   }
@@ -68,6 +68,16 @@ function Overview({ attributeTypes, data }) {
     setFn(newData);
   }
 
+  function setMinValue({ target }) {
+    const { value } = target;
+    setRange({ min: value, max: range.max });
+  }
+
+  function setMaxValue({ target }) {
+    const { value } = target;
+    setRange({ max: value, min: range.min });
+  }
+
   function BeeswarmChart(data, {
     value = d => d, // convience alias for x
     label, // convenience alias for xLabel
@@ -78,7 +88,7 @@ function Overview({ attributeTypes, data }) {
     padding = 1.5, // (fixed) padding between the circles
     marginTop = 20, // top margin, in pixels
     marginRight = 20, // right margin, in pixels
-    marginBottom = 20, // bottom margin, in pixels
+    marginBottom = 5, // bottom margin, in pixels
     marginLeft = 30, // left margin, in pixels
     width = 640, // outer width, in pixels
     height, // outer height, in pixels
@@ -92,6 +102,7 @@ function Overview({ attributeTypes, data }) {
     colorCategoryLevels,
     colorPalette
   } = {}) {
+    marginBottom = showScale ? 20 : marginBottom;
     // Compute values.
     const X = d3.map(data, x).map(x => x == null ? NaN : +Number(x));
     
@@ -111,7 +122,7 @@ function Overview({ attributeTypes, data }) {
 
 
     // Compute the default height;
-    if (height === undefined) height = d3.max(Y) + (radius + padding) * 2 + marginTop + marginBottom + 5;
+    if (height === undefined) height = d3.max(Y) + (radius + padding) * 2 + marginTop + marginBottom;
   
     // Given an array of x-values and a separation radius, returns an array of y-values.
     function dodge(X, radius) {
@@ -211,7 +222,7 @@ function Overview({ attributeTypes, data }) {
         .html(`<strong>${xLabel}</strong>: ${X[key]}` 
           + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[key][colorCategory]}` : ''))
         .style("left", `${event.pageX - 30}` + "px")
-        .style("top", `${event.pageY - 70}` + "px")
+        .style("top", `${event.pageY - 48}` + "px")
     }
     const mouseleave = function(event) {
       Tooltip
@@ -262,15 +273,15 @@ function Overview({ attributeTypes, data }) {
               {attributeTypes.quantitative.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
             </Select>
           </FormControl>
-          <div className="sm-Overview-rangeSlider">
-            <label>Range of values in X-Axis</label>
-            <Slider
-              getAriaLabel={() => 'Quantitative attribute range'}
-              value={[0, 20]}
-              // onChange={handleChange}
-              valueLabelDisplay="auto"
-              // getAriaValueText={value}
-            />
+          <div className="sm-Overview-rangeChanger">
+            <div className="sm-Overview-rangeVal">
+              <label>Min</label>
+              <Input type="number" value={range.min} placeholder="Min" onChange={setMinValue} />
+            </div>
+            <div className="sm-Overview-rangeVal">
+              <label>Max</label>
+              <Input type="number" value={range.max} placeholder="Max" onChange={setMaxValue} />
+            </div>
           </div>
           <hr />
           <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>

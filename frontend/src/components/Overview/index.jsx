@@ -253,10 +253,13 @@ function Overview({ attributeTypes, data }) {
       .attr("cx", i => xScale(X[i]))
       .attr("cy", i => height - marginBottom - radius - padding - Y[i])
       .attr("r", radius)
-      .style("fill", colorCategory ? d => color(data[d][colorCategory]) : "#0065FF")
+      .style("fill", colorCategoryLevels.length ? d => color(data[d][colorCategory]) : "#0065FF")
       .on("mouseover", mouseover)
       .on("mousemove", mousemove)
-      .on("mouseleave", mouseleave);
+      .on("mouseleave", mouseleave)
+      .transition()
+      .delay(function(d,i){return(i*3)})
+      .duration(2000);
 
     return svg.node();
   }
@@ -326,7 +329,7 @@ function Overview({ attributeTypes, data }) {
       </div>
       <IconButton className="sm-Overview-filter" onClick={() => setPanelWidth(230)}><FilterAltIcon /></IconButton>
       <div id="beeswarm">
-        {categoryToFilterBy && 
+        {filterCategoryLevels.length > 0 && 
           <div className="sm-Overview-legends" style={{ width }}>
             {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
               <div key={category.value} className="sm-Overview-legend">

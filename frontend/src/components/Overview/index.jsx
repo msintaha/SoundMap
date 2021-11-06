@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useHasChanged } from 'react';
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
@@ -28,7 +28,13 @@ function Overview({ attributeTypes, data }) {
     setYAxisLevels(newYAxisLvl);
     setFilterCategoryLevels(newFilterCategoryLvl);
     renderChart(newYAxisLvl, newFilterCategoryLvl, range);
-  }, [xAxisAttr, yAxisAttr, categoryToFilterBy]);
+  }, [yAxisAttr, categoryToFilterBy]);
+
+  useEffect(() => {
+    const newRange = getRangeWithValues(xAxisAttr, data);
+    setRange(newRange);
+    renderChart(yAxisLevels, filterCategoryLevels, newRange);
+  }, [xAxisAttr]);
 
   useEffect(() => {
     renderChart(yAxisLevels, filterCategoryLevels, range);

@@ -11,57 +11,55 @@ import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
 
 function Overview({ attributeTypes, data }) {
+  const width = 730, height = 592, radius = 3.2, padding = 1.2;
+  const margin = {
+    left: 70,
+    right: 30,
+    top: 70,
+    bottom: 30
+  };
+
   const [panelWidth, setPanelWidth] = useState(0);
-  const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[1]);
+  const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[0]);
   const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
   const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
-  const [colorPalette, setColorPalette] = useState(_.shuffle(COLORS));
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
   const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data)));
-  const margin = {top: 20, right: 95, bottom: 10, left: 100},
-      width = 800 - margin.left - margin.right;
 
   useEffect(() => {
     const newYAxisLvl = toCheckboxObject(getCategoryLevels(yAxisAttr, data));
     const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data));
     setYAxisLevels(newYAxisLvl);
     setFilterCategoryLevels(newFilterCategoryLvl);
-    renderChart(newYAxisLvl, newFilterCategoryLvl, range);
+    renderAnimatedChart(newYAxisLvl, newFilterCategoryLvl, range);
   }, [yAxisAttr, categoryToFilterBy]);
 
   useEffect(() => {
     const newRange = getRangeWithValues(xAxisAttr, data);
     setRange(newRange);
-    renderChart(yAxisLevels, filterCategoryLevels, newRange);
+    renderAnimatedChart(yAxisLevels, filterCategoryLevels, newRange);
   }, [xAxisAttr]);
 
   useEffect(() => {
-    renderChart(yAxisLevels, filterCategoryLevels, range);
+    renderAnimatedChart(yAxisLevels, filterCategoryLevels, range);
   }, [yAxisLevels, filterCategoryLevels, range]);
 
-  function renderChart(yAxisLevels, filterCategoryLevels, range) {
-    const lastIndex = yAxisLevels.length - 1;
+
+  function renderAnimatedChart(yAxisLevels, filterCategoryLevels, range) {
     const svg = d3.select("#beeswarm").selectAll('svg');
     if (svg._groups.length > 0) { d3.selectAll("#beeswarm > svg").remove(); }
-    const shuffledColorPalette = _.shuffle(colorPalette);
-    setColorPalette(shuffledColorPalette);
 
-    yAxisLevels.filter(y => y.checked).map(y => y.value).forEach((yAxisLabel, index) => {
-      BeeswarmChart(data.filter(d => d[yAxisAttr] === yAxisLabel), {
-        x: d => Number(d[xAxisAttr]),
-        label: xAxisAttr,
-        type: d3.scaleLinear,
-        width,
-        radius: 3,
-        showScale: index === lastIndex,
-        yLabel: yAxisLabel,
-        colorCategory: categoryToFilterBy,
-        colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
-        colorPalette: shuffledColorPalette,
-        xDomain: [range.min, range.max]
-      })
-    });
+    const yAxisLabels = yAxisLevels.filter(y => y.checked).map(y => y.value);
+    AnimatedBeeswarm(
+      data.filter(d => yAxisLabels.includes(d[yAxisAttr])),
+      xAxisAttr,
+      yAxisAttr,
+      categoryToFilterBy,
+      filterCategoryLevels.filter(f => f.checked).map(f => f.value),
+      yAxisLabels,
+      [range.min, range.max]
+    )
   }
 
   function setChecked(event, value, data, setFn) {
@@ -84,133 +82,62 @@ function Overview({ attributeTypes, data }) {
     setRange({ max: value, min: range.min });
   }
 
-  function BeeswarmChart(data, {
-    value = d => d, // convience alias for x
-    label, // convenience alias for xLabel
-    type = d3.scaleLinear, // convenience alias for xType
-    domain, // convenience alias for xDomain
-    x = value, // given d in data, returns the quantitative x value
-    radius = 5, // (fixed) radius of the circles
-    padding = 1.5, // (fixed) padding between the circles
-    marginTop = 20, // top margin, in pixels
-    marginRight = 20, // right margin, in pixels
-    marginBottom = 5, // bottom margin, in pixels
-    marginLeft = 30, // left margin, in pixels
-    width = 640, // outer width, in pixels
-    height, // outer height, in pixels
-    xType = type, // type of x-scale, e.g. d3.scaleLinear
-    xLabel = label, // a label for the x-axis
-    xDomain = domain, // [xmin, xmax]
-    xRange = [marginLeft, width - marginRight], // [left, right]
-    yLabel,
-    showScale,
-    colorCategory,
-    colorCategoryLevels,
-    colorPalette
-  } = {}) {
-    marginBottom = showScale ? 20 : marginBottom;
-    // Compute values.
-    const X = d3.map(data, x).map(x => x == null ? NaN : +Number(x));
-    
-    // Compute which data points are considered defined.
-    const I = d3.range(X.length).filter(i => !isNaN(X[i]));
+  function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
+    const x = d3.scaleLinear()
+      .domain(xDomain)
+      .nice()
+      .range([margin.left, width - margin.right])
+
+    const xAxis = g => g
+      .attr('transform', `translate(0,${height - margin.top})`)
+      .call(d3.axisBottom(x));
   
-    // Compute default domains.
-    if (xDomain === undefined) xDomain = d3.extent(X);
-    // Construct scales and axes.
-    const xScale = xType(xDomain, xRange);
-    const xAxis = d3.axisBottom(xScale).ticks(5, ".1f").tickSizeOuter(0);
-    const yScale = d3.scaleOrdinal([yLabel], [yLabel]);
-    const yAxis = d3.axisLeft(xScale).tickSizeOuter(0);
-  
-    // Compute the y-positions.
-    const Y = dodge(I.map(i => xScale(X[i])), radius * 2 + padding);
+    const color = d3.scaleOrdinal()
+      .domain(colorCategoryLevels)
+      .range(_.clone(COLORS).slice(0, colorCategoryLevels.length));
+
+    const y = d3.scaleBand()
+      .domain(yAxisLevels)
+      .range([height + margin.bottom, margin.top])
 
 
-    // Compute the default height;
-    if (height === undefined) height = d3.max(Y) + (radius + padding) * 2 + marginTop + marginBottom;
-  
-    // Given an array of x-values and a separation radius, returns an array of y-values.
-    function dodge(X, radius) {
-      const Y = new Float64Array(X.length);
-      const radius2 = radius ** 2;
-      const epsilon = 1e-3;
-      let head = null, tail = null;
+    const svg = d3.select('#beeswarm').append('svg')
+      .attr("width", width)
+      .attr("height", height + 10)
+      .attr('viewBox', [0, 0, width, height])
+      .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
     
-      // Returns true if circle ⟨x,y⟩ intersects with any circle in the queue.
-      function intersects(x, y) {
-        let a = head;
-        while (a) {
-          const ai = a.index;
-          if (radius2 - epsilon > (X[ai] - x) ** 2 + (Y[ai] - y) ** 2) return true;
-          a = a.next;
-        }
-        return false;
-      }
-    
-      // Place each circle sequentially.
-      for (const bi of d3.range(X.length).sort((i, j) => X[i] - X[j])) {
-  
-        // Remove circles from the queue that can’t intersect the new circle b.
-        while (head && X[head.index] < X[bi] - radius2) head = head.next;
-    
-        // Choose the minimum non-intersecting tangent.
-        if (intersects(X[bi], Y[bi] = 0)) {
-          let a = head;
-          Y[bi] = Infinity;
-          do {
-            const ai = a.index;
-            let y = Y[ai] + Math.sqrt(radius2 - (X[ai] - X[bi]) ** 2);
-            if (y < Y[bi] && !intersects(X[bi], y)) Y[bi] = y;
-            a = a.next;
-          } while (a);
-        }
-    
-        // Add b to the queue.
-        const b = {index: bi, next: null};
-        if (head === null) head = tail = b;
-        else tail = tail.next = b;
-      }
-    
-      return Y;
-    }
-    
-    const svg = d3.select("#beeswarm")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height + 10)
-        .attr("viewBox", [0, 0, width, height])
-        .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
-
-    if (showScale) {
-      svg.append("g")
-        .attr("transform", `translate(0,${height - marginBottom})`)
-        .call(xAxis)
-        .call(g => g.append("text")
-            .attr("x", width)
-            .attr("y", marginBottom + 3)
-            .attr("fill", "currentColor")
-            .attr("text-anchor", "end")
-            .text(xLabel));
-    } else {
-      svg.append("g")
-        .attr("transform", `translate(0,${height - marginBottom})`)
-        .call(g => g.append("text")
-            .attr("x", width)
-            .attr("y", marginBottom - 4)
-            .attr("fill", "currentColor")
-            .attr("text-anchor", "end"))
-            .call(g => g.select(".domain").remove());
-    }
+    svg.append('g').call(xAxis);
 
     svg.append("text")
-      .attr("class", "yLabel")
-      .attr("text-anchor", "start")
-      .attr("x", 0)
-      .attr("y", 8)
-      .attr("dy", ".5em")
-      .text(yLabel);
-
+      .attr("class", "xLabel")
+      .attr("text-anchor", "end")
+      .attr("x", width - 20)
+      .attr("y", height - 32)
+      .text(xAxisAttr);
+    
+    svg.selectAll('.line-decade')
+      .data(x.ticks())
+      .join('line')
+      .attr('class', 'line-decade')
+      .attr('x1', d => x(d))
+      .attr('x2', d => x(d))
+      .attr('y1', 10)
+      .attr('y2', height - margin.top)
+      .attr('stroke-width', 1)
+      .attr('stroke', 'lightgray');
+    
+    svg.selectAll('.label-family')
+      .data(yAxisLevels)
+      .join('text')
+      .attr('class', 'label-family')
+      .attr('x', 0)
+      .attr('y', d => y(d))
+      .attr('alignment-baseline', 'middle')
+      .attr('transform', 'translate(0, -10)')
+      .text(d => d)
+      .call(wrap, 40);
+    
     const Tooltip = d3.select('#beeswarm')
       .append("div")
       .attr("class", 'popover');
@@ -221,45 +148,53 @@ function Overview({ attributeTypes, data }) {
       d3.select(this)
         .style("stroke", "black")
         .style("opacity", 1)
-    }
+    };
+
     const mousemove = function(event) {
-      const key = event.srcElement.__data__;
+      const data = event.srcElement.__data__;
       Tooltip
-        .html(`<strong>${xLabel}</strong>: ${X[key]}` 
-          + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[key][colorCategory]}` : ''))
+        .html(`<strong>${xAxisAttr}</strong>: ${data[xAxisAttr]}` + `<br /><strong>${yAxisAttr}</strong>: ${data[yAxisAttr]}`
+          + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[colorCategory]}` : ''))
         .style("left", `${event.pageX - 30}` + "px")
         .style("top", `${event.pageY - 48}` + "px")
-    }
+    };
+
     const mouseleave = function(event) {
       Tooltip
         .style("opacity", 0)
       d3.select(this)
         .style("stroke", "none")
         .style("opacity", 0.8)
-    }
-
-    let color;
-    if (colorCategory && colorCategoryLevels.length) {
-      color = d3.scaleOrdinal()
-        .domain(colorCategoryLevels)
-        .range(_.clone(colorPalette).slice(0, colorCategoryLevels.length));
-    }
-
-    svg.append("g")
-      .selectAll("circle")
-      .attr("class", "values")
-      .data(I)
-      .join("circle")
-      .attr("cx", i => xScale(X[i]))
-      .attr("cy", i => height - marginBottom - radius - padding - Y[i])
-      .attr("r", radius)
-      .style("fill", colorCategoryLevels.length ? d => color(data[d][colorCategory]) : "#0065FF")
+    };
+          
+    const simulation = d3.forceSimulation(data)
+      .force('x', d3.forceX((d) => x(+Number(d[xAxisAttr]))).strength(5))
+      .force('y', d3.forceY((d) => y(d[yAxisAttr])))
+      .force('collide', d3.forceCollide(radius + padding))
+      .stop();
+    
+    svg.selectAll('circle')
+      .data(data)
+      .join('circle')
+      .attr('cx', (d) => x(+Number(d[xAxisAttr])))
+      .attr('cy', (d) => y(d[yAxisAttr]))
+      .attr('r', radius)
+      .attr('fill', (d) => color(d[colorCategory]))
       .on("mouseover", mouseover)
       .on("mousemove", mousemove)
-      .on("mouseleave", mouseleave)
+      .on("mouseleave", mouseleave);
+
+    for (let i = 0; i < (data.length / 2); i++) {
+      simulation.tick();
+    }     
+
+    svg.selectAll('circle')
+      .data(data)
       .transition()
-      .delay(function(d,i){return(i*3)})
-      .duration(2000);
+      .duration(1000)
+      .ease(d3.easeLinear)
+      .attr('cx', (d) => d.x)
+      .attr('cy', (d) => d.y);
 
     return svg.node();
   }
@@ -333,7 +268,7 @@ function Overview({ attributeTypes, data }) {
           <div className="sm-Overview-legends" style={{ width }}>
             {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
               <div key={category.value} className="sm-Overview-legend">
-                <span className="sm-Overview-legendColor" style={{ color: colorPalette[index] }}>&#9679;</span>
+                <span className="sm-Overview-legendColor" style={{ color: COLORS[index] }}>&#9679;</span>
                 {category.value}
               </div>
             )}
@@ -346,6 +281,39 @@ function Overview({ attributeTypes, data }) {
 
 function toCheckboxObject(arr) {
   return arr.map(a => ({ value: a, checked: true }));
+}
+
+function wrap(text, width) {
+  text.each(function () {
+      let text = d3.select(this),
+          words = text.text().split(/\s+/).reverse(),
+          word,
+          line = [],
+          lineNumber = 0,
+          lineHeight = 1, // ems
+          x = text.attr("x"),
+          y = text.attr("y"),
+          dy = 0, //parseFloat(text.attr("dy")),
+          tspan = text.text(null)
+                      .append("tspan")
+                      .attr("x", x)
+                      .attr("y", y)
+                      .attr("dy", dy + "em");
+      while (word = words.pop()) {
+          line.push(word);
+          tspan.text(line.join(" "));
+          if (tspan.node().getComputedTextLength() > width) {
+              line.pop();
+              tspan.text(line.join(" "));
+              line = [word];
+              tspan = text.append("tspan")
+                          .attr("x", x)
+                          .attr("y", y)
+                          .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                          .text(word);
+          }
+      }
+  });
 }
 
 Overview.propTypes = {

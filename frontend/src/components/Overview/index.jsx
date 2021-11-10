@@ -11,7 +11,7 @@ import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
 
 function Overview({ attributeTypes, data }) {
-  const width = 730, height = 592, radius = 3.2, padding = 1.2;
+  const width = 695, height = 592, radius = 3.2, padding = 1.2;
   const margin = {
     left: 70,
     right: 30,
@@ -182,7 +182,11 @@ function Overview({ attributeTypes, data }) {
       .attr('fill', (d) => color(d[colorCategory]))
       .on("mouseover", mouseover)
       .on("mousemove", mousemove)
-      .on("mouseleave", mouseleave);
+      .on("mouseleave", mouseleave)
+      .on("click", function(event) {
+        const data = event.srcElement.__data__;
+        console.log(data);
+      });
 
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();

@@ -125,6 +125,7 @@ function Overview({ attributeTypes, data }) {
       .attr('y1', 10)
       .attr('y2', height - margin.top)
       .attr('stroke-width', 1)
+      .style('stroke-dasharray', ('3, 3'))
       .attr('stroke', 'lightgray');
     
     svg.selectAll('.label-family')

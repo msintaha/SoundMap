@@ -25,6 +25,8 @@ function Dashboard() {
   }, []);
 
   const onFileUpload = (event) => {
+    onCancel();
+
     const file = event.target.files[0];
     const reader = new FileReader();
 
@@ -56,6 +58,7 @@ function Dashboard() {
   function onCancel() {
     setData([]);
     setOpen(false);
+    setIsConfirmed(false);
     setAttributeTypes({
       ordinal: [],
       quantitative: [],
@@ -107,7 +110,7 @@ function Dashboard() {
         </Fade>
       </Modal>
       <div className="sm-Dashboard-body">
-        {(!!data.length && Object.values(attributeTypes).find(v => v.length > 1)) && isConfirmed && <Overview attributeTypes={attributeTypes} data={data} />}
+        {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed && <Overview attributeTypes={attributeTypes} data={data} />}
       </div>
     </div>
   );

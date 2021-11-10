@@ -102,18 +102,18 @@ function Overview({ attributeTypes, data }) {
 
 
     const svg = d3.select('#beeswarm').append('svg')
-      .attr("width", width)
-      .attr("height", height + 10)
+      .attr('width', width)
+      .attr('height', height + 10)
       .attr('viewBox', [0, 0, width, height])
-      .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+      .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
     
     svg.append('g').call(xAxis);
 
-    svg.append("text")
-      .attr("class", "xLabel")
-      .attr("text-anchor", "end")
-      .attr("x", width - 20)
-      .attr("y", height - 32)
+    svg.append('text')
+      .attr('class', 'xLabel')
+      .attr('text-anchor', 'end')
+      .attr('x', width - 20)
+      .attr('y', height - 32)
       .text(xAxisAttr);
     
     svg.selectAll('.line-decade')
@@ -162,10 +162,10 @@ function Overview({ attributeTypes, data }) {
 
     const mouseleave = function(event) {
       Tooltip
-        .style("opacity", 0)
+        .style('opacity', 0)
       d3.select(this)
-        .style("stroke", "none")
-        .style("opacity", 0.8)
+        .style('stroke', 'none')
+        .style('opacity', 0.8)
     };
           
     const simulation = d3.forceSimulation(data)
@@ -181,10 +181,10 @@ function Overview({ attributeTypes, data }) {
       .attr('cy', (d) => y(d[yAxisAttr]))
       .attr('r', radius)
       .attr('fill', (d) => color(d[colorCategory]))
-      .on("mouseover", mouseover)
-      .on("mousemove", mousemove)
-      .on("mouseleave", mouseleave)
-      .on("click", function(event) {
+      .on('mouseover', mouseover)
+      .on('mousemove', mousemove)
+      .on('mouseleave', mouseleave)
+      .on('click', function(event) {
         const data = event.srcElement.__data__;
         console.log(data);
       });
@@ -290,34 +290,34 @@ function toCheckboxObject(arr) {
 
 function wrap(text, width) {
   text.each(function () {
-      let text = d3.select(this),
-          words = text.text().split(/\s+/).reverse(),
-          word,
-          line = [],
-          lineNumber = 0,
-          lineHeight = 1, // ems
-          x = text.attr("x"),
-          y = text.attr("y"),
-          dy = 0, //parseFloat(text.attr("dy")),
-          tspan = text.text(null)
-                      .append("tspan")
-                      .attr("x", x)
-                      .attr("y", y)
-                      .attr("dy", dy + "em");
-      while (word = words.pop()) {
-          line.push(word);
-          tspan.text(line.join(" "));
-          if (tspan.node().getComputedTextLength() > width) {
-              line.pop();
-              tspan.text(line.join(" "));
-              line = [word];
-              tspan = text.append("tspan")
-                          .attr("x", x)
-                          .attr("y", y)
-                          .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                          .text(word);
-          }
-      }
+    let text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1, // ems
+        x = text.attr("x"),
+        y = text.attr("y"),
+        dy = 0, //parseFloat(text.attr("dy")),
+        tspan = text.text(null)
+                  .append("tspan")
+                  .attr("x", x)
+                  .attr("y", y)
+                  .attr("dy", dy + "em");
+    while (word = words.pop()) {
+        line.push(word);
+        tspan.text(line.join(" "));
+        if (tspan.node().getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan")
+                        .attr("x", x)
+                        .attr("y", y)
+                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                        .text(word);
+        }
+    }
   });
 }
 

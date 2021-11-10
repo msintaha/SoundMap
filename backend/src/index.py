@@ -13,10 +13,13 @@ incomes = [
   { 'description': 'salary', 'amount': 5000 }
 ]
 
+@app.route('/')
+def get():
+  return 'Hello World'
 
 @app.route('/api')
 @cross_origin()
-def get():
+def get_incomes():
   return jsonify(incomes)
 
 

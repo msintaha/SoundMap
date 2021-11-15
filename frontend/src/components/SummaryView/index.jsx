@@ -1,39 +1,74 @@
-import React from 'react';
-import './_index.scss';
+import React, { useEffect, useState, useHasChanged } from 'react';
+import PropTypes from 'prop-types';
+
+import * as d3 from 'd3';
+import _ from 'lodash';
+
+import { COLORS, getCategoryLevels, getRangeWithValues, getAverages } from '../../utils/attributes';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Select, MenuItem, Input } from '@mui/material';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
 function SummaryView({ attributeTypes, data }) {
   const [panelWidth, setPanelWidth] = useState(0);
-  const [xAxisAttr, setXAxis] = useState(toCheckboxObject(getCategoryLevels(xAxisAttr, data)));
-  const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [yAxisAttr, setXAxis] = useState(attributeTypes.quantitative[1]);
+  const [xAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [xAxisLevels, setxAxisLevels] = useState(toCheckboxObject(getCategoryLevels(xAxisAttr, data)));
+  const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
   const [colorPalette, setColorPalette] = useState(_.shuffle(COLORS));
+  const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
   const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data)));
   const margin = {top: 20, right: 95, bottom: 10, left: 100},
       width = 800 - margin.left - margin.right;
 
   useEffect(() => {
-    renderChart(xAxisAttr, filterCategoryLevels, range);
-  }, [xAxisAttr, filterCategoryLevels, range]);
+    const newYAxisLvl = toCheckboxObject(getCategoryLevels(xAxisAttr, data));
+    const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data));
+    setxAxisLevels(newYAxisLvl);
+    setFilterCategoryLevels(newFilterCategoryLvl);
+    renderChart(newYAxisLvl, newFilterCategoryLvl, range);
+  }, [xAxisAttr, categoryToFilterBy]);
 
+  useEffect(() => {
+    const newRange = getRangeWithValues(yAxisAttr, data);
+    setRange(newRange);
+    renderChart(xAxisLevels, filterCategoryLevels, newRange);
+  }, [yAxisAttr]);
 
-  function renderChart(yAxisLevels, filterCategoryLevels, range) {
+  useEffect(() => {
+    renderChart(xAxisLevels, filterCategoryLevels, range);
+  }, [xAxisLevels, filterCategoryLevels, range]);
+
+  function renderChart(xAxisLevels, filterCategoryLevels, range) {
     const svg = d3.select("#barchart").selectAll('svg');
     if (svg._groups.length > 0) { d3.selectAll("#barchart > svg").remove(); }
     const shuffledColorPalette = _.shuffle(colorPalette);
     setColorPalette(shuffledColorPalette);
 
-    return BarChart(data, {
-      x: d => Number(d[xAxisAttr]),
-      label: xAxisAttr,
+    console.log(xAxisLevels);
+
+    console.log(data);
+    console.log(xAxisAttr);
+    console.log(yAxisAttr);
+    console.log(range);
+
+    const filterData = xAxisLevels.filter(y => y.checked)
+      .map(y => ({name: y.value, value: data.filter(d => d[xAxisAttr] === y.value)}));
+
+    const newData = filterData.map(y => ({name: y.name, value: _.meanBy(y.value.map(v => Number((v[yAxisAttr]))))}));
+
+    return BarChart(newData, {
+      x: d => Number(d[yAxisAttr]),
+      label: yAxisAttr,
       type: d3.scaleLinear,
-      domain: yAxisLevels.filter(y => y.checked).map(y => y.value),
+      domain: xAxisLevels.filter(x => x.checked).map(x => x.value),
       width,
-      radius: 4,
       showScale: 1,
-      yLabel: "hello",
+      yLabel: yAxisAttr,
       colorCategory: categoryToFilterBy,
       colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
       colorPalette: shuffledColorPalette,
-      xDomain: [xRange.min, xRange.max]
+      yDomain: [0, range.max]
     });
   }
 
@@ -43,16 +78,17 @@ function SummaryView({ attributeTypes, data }) {
     type = d3.scaleLinear, // convenience alias for xType
     domain, // convenience alias for xDomain
     x = value, // given d in data, returns the quantitative x value
-    marginTop = 20, // top margin, in pixels
-    marginRight = 20, // right margin, in pixels
-    marginBottom = 5, // bottom margin, in pixels
-    marginLeft = 30, // left margin, in pixels
-    width = 640, // outer width, in pixels
-    height, // outer height, in pixels
+    marginTop = 50, // top margin, in pixels
+    marginRight = 50, // right margin, in pixels
+    marginBottom = 50, // bottom margin, in pixels
+    marginLeft = 50, // left margin, in pixels
+    width = 700, // outer width, in pixels
+    height = 400, // outer height, in pixels
     xType = type, // type of x-scale, e.g. d3.scaleLinear
     xLabel = label, // a label for the x-axis
     xDomain = domain, // [xmin, xmax]
     xRange = [marginLeft, width - marginRight], // [left, right]
+    yDomain,
     yLabel,
     showScale,
     colorCategory,
@@ -60,43 +96,56 @@ function SummaryView({ attributeTypes, data }) {
     colorPalette
   } = {}) {
 
+    const testdata =  [
+      { stimulus: '1', value: 50 },
+      { stimulus: '2', value: 60 },
+      { stimulus: '3', value: 70 }
+    ]
+
     const svg = d3.select("#barchart")
         .append("svg")
-        .attr("width", width)
-        .attr("height", height + 10)
+        .attr("width", width - marginLeft - marginRight)
+        .attr("height", height - marginTop - marginBottom)
         .attr("viewBox", [0, 0, width, height])
-        .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
     // Define scale for X axis
-    var xScale = d3.scaleBand().range ([0, width]).padding(0.4);
+    var x = d3.scaleBand()
+      .domain(d3.range(domain.length))
+      .range([marginLeft, width - marginRight])
+      .padding(0.1);
 
     // Define scale for Y axis
-    var  yScale = d3.scaleLinear().range ([height, 0]);
+    var  y = d3.scaleLinear()
+      .domain(yDomain)
+      .range([height - marginBottom, marginTop]);
 
-    var g = svg.append("g")
-               .attr("transform", "translate(" + 100 + "," + 100 + ")");
+    svg.append('g')
+      .attr('fill', 'currentColor')
+      .selectAll('rect')
+      .data(data)
+      .join('rect')
+        .attr('x', (d, i) => x(i))
+        .attr('y', (d) => y(d.value))
+        .attr('height', (d) => y(0) - y(d.value))
+        .attr('width', x.bandwidth());
 
-    // Define values for x axis
-    xScale.domain(domain); 
-    // Define values for y axis
-    yScale.domain([0, d3.max(data, function(d) { return d; })]); 
+    function xAxis(g) {
+      g.attr('transform', `translate(0, ${height - marginBottom})`)
+        .call(d3.axisBottom(x).tickFormat(i => domain[i]))
+       // .attr('font-size', '20px')
+    }
+  
+    function yAxis(g) {
+      g.attr('transform', `translate(${marginLeft}, 0)`)
+        .call(d3.axisLeft(y).ticks(null, data.format))
+        //.attr('font-size', '20px')
+    }
 
-    g.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(xScale));
-
-    g.append("g")
-      .call(d3.axisLeft(yScale).tickFormat(function(d){
-        return "$" + d;
-      }).ticks(10))
-      .append("text")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("value");
-
+    svg.append('g').call(yAxis);
+    svg.append('g').call(xAxis);
     return svg.node();
   }
+
 
   return (
     <div className="sm-SummaryView">
@@ -114,6 +163,10 @@ function SummaryView({ attributeTypes, data }) {
       </div>
     </div>
   );
+}
+
+function toCheckboxObject(arr) {
+  return arr.map(a => ({ value: a, checked: true }));
 }
 
 SummaryView.propTypes = {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import Overview from '../../components/Overview';
 import Header from '../../components/Header';
@@ -6,7 +6,7 @@ import { Backdrop, Box, Button, CircularProgress, Checkbox, FormControlLabel, Mo
 
 import * as d3 from 'd3';
 import _ from 'lodash';
-import Service from '../../services/Service';
+import UploadIcon from '@mui/icons-material/UploadFileOutlined';
 
 
 function Dashboard() {
@@ -68,7 +68,7 @@ function Dashboard() {
   return (
     <div className="sm-Dashboard">
       <Header onFileUpload={onFileUpload} />
-      {isLoading && <Box sx={{ position: 'absolute', top: '50%', left: '50%' }}>
+      {isLoading && <Box sx={{ position: 'absolute', top: '50%', left: '48.5%' }}>
         <CircularProgress disableShrink color="secondary" />
       </Box>}
       <Modal
@@ -113,6 +113,12 @@ function Dashboard() {
       </Modal>
       <div className="sm-Dashboard-body">
         {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed && <Overview attributeTypes={attributeTypes} data={data} />}
+        {!data.length && !isLoading &&
+          <div className="sm-Dashboard-empty">
+            Get started by uploading a CSV file
+            <Box sx={{display: 'flex'}}><UploadIcon fontSize="large" size="large" /></Box>
+          </div>
+        }
       </div>
     </div>
   );

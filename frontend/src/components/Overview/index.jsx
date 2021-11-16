@@ -9,9 +9,10 @@ import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLa
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
+const COLOR_FILTER_LIMIT = 6;
 
 function Overview({ attributeTypes, data }) {
-  const width = 695, height = 592, radius = 3.2, padding = 1.2;
+  const width = 695, radius = 3.2, padding = 1.2;
   const margin = {
     left: 70,
     right: 30,
@@ -25,11 +26,11 @@ function Overview({ attributeTypes, data }) {
   const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
-  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data)));
+  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
 
   useEffect(() => {
     const newYAxisLvl = toCheckboxObject(getCategoryLevels(yAxisAttr, data));
-    const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data));
+    const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT);
     setYAxisLevels(newYAxisLvl);
     setFilterCategoryLevels(newFilterCategoryLvl);
     renderAnimatedChart(newYAxisLvl, newFilterCategoryLvl, range);
@@ -62,7 +63,12 @@ function Overview({ attributeTypes, data }) {
     )
   }
 
-  function setChecked(event, value, data, setFn) {
+  function setChecked(event, value, data, setFn, limit = null) {
+    const checkedLength = data.filter(d => d.checked).length;
+
+    if (limit && checkedLength >= limit && event.target.checked) {
+      return;
+    }
     const newData = data.map(d => {
       if (d.value === value) {
         d.checked = event.target.checked;
@@ -83,6 +89,10 @@ function Overview({ attributeTypes, data }) {
   }
 
   function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
+    let height = 592;
+    if (yAxisLevels.length > 4) {
+      height = (yAxisLevels.length / 5) * height;
+    }
     const x = d3.scaleLinear()
       .domain(xDomain)
       .nice()
@@ -110,11 +120,18 @@ function Overview({ attributeTypes, data }) {
     svg.append('g').call(xAxis);
 
     svg.append('text')
-      .attr('class', 'xLabel')
+      .attr('class', 'axisLabel')
       .attr('text-anchor', 'end')
       .attr('x', width - 20)
       .attr('y', height - 32)
       .text(xAxisAttr);
+    
+    svg.append('text')
+      .attr('class', 'axisLabel')
+      .attr('text-anchor', 'end')
+      .attr('x', 76)
+      .attr('y', 11)
+      .text(yAxisAttr);
     
     svg.selectAll('.line-decade')
       .data(x.ticks())
@@ -137,7 +154,7 @@ function Overview({ attributeTypes, data }) {
       .attr('alignment-baseline', 'middle')
       .attr('transform', 'translate(0, -10)')
       .text(d => d)
-      .call(wrap, 40);
+      .call(wrap, 75);
     
     const Tooltip = d3.select('#beeswarm')
       .append("div")
@@ -246,7 +263,7 @@ function Overview({ attributeTypes, data }) {
             </Select>
           </FormControl>
           <FormGroup className="sm-Overview-checkboxes">
-            {yAxisLevels.map(level => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
+            {yAxisLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
           </FormGroup>
           <hr />
           <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
@@ -263,7 +280,7 @@ function Overview({ attributeTypes, data }) {
             </Select>
           </FormControl>
           <FormGroup className="sm-Overview-checkboxes">
-            {filterCategoryLevels.map(level => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, filterCategoryLevels, setFilterCategoryLevels)} checked={level.checked} />} label={level.value} />)}
+            {filterCategoryLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, filterCategoryLevels, setFilterCategoryLevels, COLOR_FILTER_LIMIT)} checked={level.checked} />} label={level.value} />)}
           </FormGroup>
         </div>
       </div>
@@ -284,8 +301,9 @@ function Overview({ attributeTypes, data }) {
   );
 }
 
-function toCheckboxObject(arr) {
-  return arr.map(a => ({ value: a, checked: true }));
+function toCheckboxObject(arr, limit = null) {
+  console.log('limit', limit);
+  return arr.map((a, idx) => ({ value: a, checked: limit ? !!(idx <= limit) : true }));
 }
 
 function wrap(text, width) {

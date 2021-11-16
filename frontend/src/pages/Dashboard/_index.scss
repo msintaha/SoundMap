@@ -18,6 +18,8 @@
 
   &-modalBody {
     display: flex;
+    overflow: auto;
+    max-height: 480px;
   }
 
   &-modalFooter {

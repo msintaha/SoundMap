@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import Overview from '../../components/Overview';
 import Header from '../../components/Header';
-import { Backdrop, Box, Button, Checkbox, FormControlLabel, Modal, Fade } from '@mui/material';
+import { Backdrop, Box, Button, CircularProgress, Checkbox, FormControlLabel, Modal, Fade } from '@mui/material';
 
 import * as d3 from 'd3';
 import _ from 'lodash';
@@ -19,13 +19,11 @@ function Dashboard() {
   const [data, setData] = useState([]);
   const [attrs, setAttrs] = useState([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
-
-  useEffect(() => {
-    Service.list().then(data => console.log('Fetching data from backend', data));
-  }, []);
+  const [isLoading, setLoading] = useState(false);
 
   const onFileUpload = (event) => {
     onCancel();
+    setLoading(true);
 
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -36,6 +34,7 @@ function Dashboard() {
       setData(csvData);
       setAttrs(Object.keys(csvData[0]));
       setOpen(true);
+      setLoading(false);
     }
 
     reader.readAsText(file);
@@ -69,6 +68,9 @@ function Dashboard() {
   return (
     <div className="sm-Dashboard">
       <Header onFileUpload={onFileUpload} />
+      {isLoading && <Box sx={{ position: 'absolute', top: '50%', left: '50%' }}>
+        <CircularProgress disableShrink color="secondary" />
+      </Box>}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

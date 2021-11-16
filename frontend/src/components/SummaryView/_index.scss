@@ -1,0 +1,13 @@
+.sm-SummaryView {
+    margin-top: 0;
+    position: relative;
+    border: 1px dashed #dedede;
+    padding: 8px;
+    border-radius: 4px;
+
+    #barchart {
+        display: flex;
+        flex-direction: column;
+        margin-left: 20px;
+    }
+}

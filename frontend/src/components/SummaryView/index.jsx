@@ -10,9 +10,9 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
 function SummaryView({ attributeTypes, data }) {
-  const [panelWidth, setPanelWidth] = useState(0);
   const [yAxisAttr, setXAxis] = useState(attributeTypes.quantitative[1]);
   const [xAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [groupAttr, setGroup] = useState(attributeTypes.ordinal[1]);
   const [xAxisLevels, setxAxisLevels] = useState(toCheckboxObject(getCategoryLevels(xAxisAttr, data)));
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
   const [colorPalette, setColorPalette] = useState(_.shuffle(COLORS));
@@ -45,19 +45,14 @@ function SummaryView({ attributeTypes, data }) {
     const shuffledColorPalette = _.shuffle(colorPalette);
     setColorPalette(shuffledColorPalette);
 
-    console.log(xAxisLevels);
-
-    console.log(data);
-    console.log(xAxisAttr);
-    console.log(yAxisAttr);
-    console.log(range);
-
     const filterData = xAxisLevels.filter(y => y.checked)
       .map(y => ({name: y.value, value: data.filter(d => d[xAxisAttr] === y.value)}));
 
-    const newData = filterData.map(y => ({name: y.name, value: _.meanBy(y.value.map(v => Number((v[yAxisAttr]))))}));
+    const checkedColorCategoryLevels = filterCategoryLevels.filter(x => x.checked);
 
-    return BarChart(newData, {
+    const avgData = filterData.map(y => ({group: y.name, subgroups: checkedColorCategoryLevels.map(x => ({name: x.value, avg: _.meanBy(y.value.filter(z => x.value == z[groupAttr]).map(v => Number((v[yAxisAttr]))))}))}));
+
+    return BarChart(avgData, {
       x: d => Number(d[yAxisAttr]),
       label: yAxisAttr,
       type: d3.scaleLinear,
@@ -82,7 +77,7 @@ function SummaryView({ attributeTypes, data }) {
     marginRight = 50, // right margin, in pixels
     marginBottom = 50, // bottom margin, in pixels
     marginLeft = 50, // left margin, in pixels
-    width = 700, // outer width, in pixels
+    width = 400, // outer width, in pixels
     height = 400, // outer height, in pixels
     xType = type, // type of x-scale, e.g. d3.scaleLinear
     xLabel = label, // a label for the x-axis
@@ -96,21 +91,17 @@ function SummaryView({ attributeTypes, data }) {
     colorPalette
   } = {}) {
 
-    const testdata =  [
-      { stimulus: '1', value: 50 },
-      { stimulus: '2', value: 60 },
-      { stimulus: '3', value: 70 }
-    ]
-
     const svg = d3.select("#barchart")
         .append("svg")
         .attr("width", width - marginLeft - marginRight)
         .attr("height", height - marginTop - marginBottom)
         .attr("viewBox", [0, 0, width, height])
 
+    var groups = d3.map(data, function(d){return(d.group)}).keys()
+
     // Define scale for X axis
     var x = d3.scaleBand()
-      .domain(d3.range(domain.length))
+      .domain(groups)
       .range([marginLeft, width - marginRight])
       .padding(0.1);
 
@@ -119,15 +110,35 @@ function SummaryView({ attributeTypes, data }) {
       .domain(yDomain)
       .range([height - marginBottom, marginTop]);
 
+    // Another scale for subgroup position?
+      var xSubgroup = d3.scaleBand()
+      .domain(colorCategoryLevels)
+      .range([0, x.bandwidth()])
+      .padding([0.05])
+
+    let color;
+    if (colorCategory && colorCategoryLevels.length) {
+      color = d3.scaleOrdinal()
+        .domain(colorCategoryLevels)
+        .range(_.clone(colorPalette).slice(0, colorCategoryLevels.length));
+    }
+
+
     svg.append('g')
-      .attr('fill', 'currentColor')
-      .selectAll('rect')
+      .selectAll('g')
       .data(data)
-      .join('rect')
-        .attr('x', (d, i) => x(i))
-        .attr('y', (d) => y(d.value))
-        .attr('height', (d) => y(0) - y(d.value))
-        .attr('width', x.bandwidth());
+      .enter()
+      .append('g')
+        .attr("transform", function(d, i) { return "translate(" + x(i) + ",0)"; })
+
+      .selectAll("rect")
+      .data(function(d) { return colorCategoryLevels.map(function(key) { return {key: key, value: d.subgroups.find(v => v.name == key)} }); })
+      .enter().append("rect")
+        .attr("x", function(d) { return xSubgroup(d.key); })
+        .attr("y", function(d) { return y(d.value.avg); })
+        .attr("width", xSubgroup.bandwidth())
+        .attr("height", function(d) { return y(0) - y(d.value.avg); })
+        .attr("fill", function(d) { return color(d.key); });
 
     function xAxis(g) {
       g.attr('transform', `translate(0, ${height - marginBottom})`)
@@ -143,6 +154,14 @@ function SummaryView({ attributeTypes, data }) {
 
     svg.append('g').call(yAxis);
     svg.append('g').call(xAxis);
+
+    svg.append("text")
+      .attr("class", "y label")
+      .attr("text-anchor", "end")
+      .attr("y", 0)
+      .attr("dy", ".25em")
+      .attr("transform", "rotate(-90)")
+      .text(yAxisAttr);
     return svg.node();
   }
 

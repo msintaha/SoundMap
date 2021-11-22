@@ -97,7 +97,7 @@ function SummaryView({ attributeTypes, data }) {
         .attr("height", height - marginTop - marginBottom)
         .attr("viewBox", [0, 0, width, height])
 
-    var groups = d3.map(data, function(d){return(d.group)}).keys()
+    var groups = d3.map(data, function(d) {return(d.group)}).keys()
 
     // Define scale for X axis
     var x = d3.scaleBand()
@@ -110,7 +110,7 @@ function SummaryView({ attributeTypes, data }) {
       .domain(yDomain)
       .range([height - marginBottom, marginTop]);
 
-    // Another scale for subgroup position?
+    // Another scale for subgroup position
       var xSubgroup = d3.scaleBand()
       .domain(colorCategoryLevels)
       .range([0, x.bandwidth()])

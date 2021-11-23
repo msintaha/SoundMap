@@ -19,6 +19,7 @@ function Overview({ attributeTypes, data }) {
     top: 70,
     bottom: 30
   };
+  const isSparse = data.length < 100;
 
   const [panelWidth, setPanelWidth] = useState(0);
   const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[0]);
@@ -89,10 +90,13 @@ function Overview({ attributeTypes, data }) {
   }
 
   function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
-    let height = 592;
-    if (yAxisLevels.length > 4) {
-      height = (yAxisLevels.length / 5) * height;
+    let height = 500;
+    if (yAxisLevels.length >= 4 && !isSparse) {
+      height = (yAxisLevels.length * (height - (xAxisAttr.endsWith('max') || xAxisAttr.endsWith('min') ? 0 : margin.top))) / 3;
+    } else if (yAxisLevels.length >= 4 && isSparse) {
+      height = 900;
     }
+
     const x = d3.scaleLinear()
       .domain(xDomain)
       .nice()
@@ -108,7 +112,7 @@ function Overview({ attributeTypes, data }) {
 
     const y = d3.scaleBand()
       .domain(yAxisLevels)
-      .range([height + margin.bottom, margin.top])
+      .range([isSparse ? 850 : height + margin.bottom, isSparse ? margin.top - 20 : margin.top])
 
 
     const svg = d3.select('#beeswarm').append('svg')
@@ -148,7 +152,7 @@ function Overview({ attributeTypes, data }) {
     svg.selectAll('.label-family')
       .data(yAxisLevels)
       .join('text')
-      .attr('class', 'label-family')
+      .attr('class', isSparse ? 'label-family-sparse' : 'label-family')
       .attr('x', 0)
       .attr('y', d => y(d))
       .attr('alignment-baseline', 'middle')
@@ -203,7 +207,7 @@ function Overview({ attributeTypes, data }) {
       .on('mouseleave', mouseleave)
       .on('click', function(event) {
         const data = event.srcElement.__data__;
-        console.log(data);
+        console.log('Clicked', data);
       });
 
     for (let i = 0; i < (data.length / 2); i++) {
@@ -302,7 +306,6 @@ function Overview({ attributeTypes, data }) {
 }
 
 function toCheckboxObject(arr, limit = null) {
-  console.log('limit', limit);
   return arr.map((a, idx) => ({ value: a, checked: limit ? !!(idx <= limit) : true }));
 }
 

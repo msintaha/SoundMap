@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
 
-import { getCategoryLevels, getRangeWithValues } from '../../utils/attributes';
+import { COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, toCheckboxObject } from '../../utils/attributes';
 
 function SummaryView({ attributeTypes, data, colorPalette}) {
   const yAxisAttr = attributeTypes.quantitative[1];
@@ -12,13 +12,13 @@ function SummaryView({ attributeTypes, data, colorPalette}) {
   const [xAxisLevels, setxAxisLevels] = useState(toCheckboxObject(getCategoryLevels(xAxisAttr, data)));
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
   const categoryToFilterBy = attributeTypes.ordinal[1];
-  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data)));
+  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
   const margin = {top: 20, right: 95, bottom: 10, left: 100},
       width = 800 - margin.left - margin.right;
 
   useEffect(() => {
     const newYAxisLvl = toCheckboxObject(getCategoryLevels(xAxisAttr, data));
-    const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data));
+    const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT);
     setxAxisLevels(newYAxisLvl);
     setFilterCategoryLevels(newFilterCategoryLvl);
     renderChart(newYAxisLvl, newFilterCategoryLvl, range);
@@ -170,10 +170,6 @@ function SummaryView({ attributeTypes, data, colorPalette}) {
       </div>
     </div>
   );
-}
-
-function toCheckboxObject(arr) {
-  return arr.map(a => ({ value: a, checked: true }));
 }
 
 SummaryView.propTypes = {

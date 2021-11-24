@@ -4,20 +4,19 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import _ from 'lodash';
 
-import { COLORS, getCategoryLevels, getRangeWithValues } from '../../utils/attributes';
+import { COLORS, COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, toCheckboxObject } from '../../utils/attributes';
 import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Select, MenuItem, Input } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
 import SummaryView from '../SummaryView';
 
-const COLOR_FILTER_LIMIT = 6;
 
 function Overview({ attributeTypes, data }) {
   const width = 695, radius = 3.2, padding = 1.2;
   const margin = {
     left: 70,
     right: 30,
-    top: 70,
+    top: 60,
     bottom: 30
   };
   const isSparse = data.length < 100;
@@ -313,9 +312,6 @@ function Overview({ attributeTypes, data }) {
   );
 }
 
-function toCheckboxObject(arr, limit = null) {
-  return arr.map((a, idx) => ({ value: a, checked: limit ? !!(idx <= limit) : true }));
-}
 
 function wrap(text, width) {
   text.each(function () {

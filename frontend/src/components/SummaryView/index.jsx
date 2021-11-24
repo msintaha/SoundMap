@@ -2,12 +2,8 @@ import React, { useEffect, useState, useHasChanged } from 'react';
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
-import _ from 'lodash';
 
-import { COLORS, getCategoryLevels, getRangeWithValues, getAverages } from '../../utils/attributes';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Select, MenuItem, Input } from '@mui/material';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import CloseOutlined from '@mui/icons-material/CloseOutlined';
+import { getCategoryLevels, getRangeWithValues } from '../../utils/attributes';
 
 function SummaryView({ attributeTypes, data, colorPalette}) {
   const yAxisAttr = attributeTypes.quantitative[1];

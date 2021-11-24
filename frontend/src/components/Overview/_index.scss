@@ -58,6 +58,11 @@
         margin-left: 20px;
     }
 
+    &-charts {
+        display: flex;
+        flex-direction: row;
+    }
+
     .popover {
         background-color: rgba(0, 0, 0, 0.75);
         border-radius: 3px;

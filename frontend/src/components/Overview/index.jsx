@@ -8,6 +8,7 @@ import { COLORS, getCategoryLevels, getRangeWithValues } from '../../utils/attri
 import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Select, MenuItem, Input } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
+import SummaryView from '../SummaryView';
 
 const COLOR_FILTER_LIMIT = 6;
 

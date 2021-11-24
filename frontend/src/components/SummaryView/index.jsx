@@ -9,14 +9,13 @@ import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLa
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
 
-function SummaryView({ attributeTypes, data }) {
-  const [yAxisAttr, setXAxis] = useState(attributeTypes.quantitative[1]);
-  const [xAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
-  const [groupAttr, setGroup] = useState(attributeTypes.ordinal[1]);
+function SummaryView({ attributeTypes, data, colorPalette}) {
+  const yAxisAttr = attributeTypes.quantitative[1];
+  const xAxisAttr = attributeTypes.ordinal[0];
+  const groupAttr = attributeTypes.ordinal[1];
   const [xAxisLevels, setxAxisLevels] = useState(toCheckboxObject(getCategoryLevels(xAxisAttr, data)));
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
-  const [colorPalette, setColorPalette] = useState(_.shuffle(COLORS));
-  const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
+  const categoryToFilterBy = attributeTypes.ordinal[1];
   const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data)));
   const margin = {top: 20, right: 95, bottom: 10, left: 100},
       width = 800 - margin.left - margin.right;
@@ -39,11 +38,13 @@ function SummaryView({ attributeTypes, data }) {
     renderChart(xAxisLevels, filterCategoryLevels, range);
   }, [xAxisLevels, filterCategoryLevels, range]);
 
+  useEffect(() => {
+    renderChart(xAxisLevels, filterCategoryLevels, range);
+  }, [colorPalette]);
+
   function renderChart(xAxisLevels, filterCategoryLevels, range) {
     const svg = d3.select("#barchart").selectAll('svg');
     if (svg._groups.length > 0) { d3.selectAll("#barchart > svg").remove(); }
-    const shuffledColorPalette = _.shuffle(colorPalette);
-    setColorPalette(shuffledColorPalette);
 
     const filterData = xAxisLevels.filter(y => y.checked)
       .map(y => ({name: y.value, value: data.filter(d => d[xAxisAttr] === y.value)}));
@@ -62,15 +63,13 @@ function SummaryView({ attributeTypes, data }) {
       yLabel: yAxisAttr,
       colorCategory: categoryToFilterBy,
       colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
-      colorPalette: shuffledColorPalette,
+      colorPalette,
       yDomain: [0, range.max]
     });
   }
 
   function BarChart(data, {
     value = d => d, // convience alias for x
-    label, // convenience alias for xLabel
-    type = d3.scaleLinear, // convenience alias for xType
     domain, // convenience alias for xDomain
     x = value, // given d in data, returns the quantitative x value
     marginTop = 50, // top margin, in pixels
@@ -79,13 +78,7 @@ function SummaryView({ attributeTypes, data }) {
     marginLeft = 50, // left margin, in pixels
     width = 400, // outer width, in pixels
     height = 400, // outer height, in pixels
-    xType = type, // type of x-scale, e.g. d3.scaleLinear
-    xLabel = label, // a label for the x-axis
-    xDomain = domain, // [xmin, xmax]
-    xRange = [marginLeft, width - marginRight], // [left, right]
     yDomain,
-    yLabel,
-    showScale,
     colorCategory,
     colorCategoryLevels,
     colorPalette
@@ -122,7 +115,6 @@ function SummaryView({ attributeTypes, data }) {
         .domain(colorCategoryLevels)
         .range(_.clone(colorPalette).slice(0, colorCategoryLevels.length));
     }
-
 
     svg.append('g')
       .selectAll('g')

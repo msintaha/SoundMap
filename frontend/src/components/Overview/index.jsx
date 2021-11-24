@@ -302,6 +302,13 @@ function Overview({ attributeTypes, data }) {
           </div>
         }
       </div>
+      <div>
+        {filterCategoryLevels.length > 0 && 
+        <div className="sm-Summary-view">
+            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} />
+          </div>
+        }
+      </div>
     </div>
   );
 }

@@ -1,11 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState, useHasChanged } from 'react';
+import PropTypes from 'prop-types';
 import './_index.scss';
+import * as d3 from 'd3';
+import { lazy } from 'react';
+import Service from '../../services/Service';
 
-function DetailedView() {
+function DetailedView({ attributeTypes, data }) {
+    const [image, setImage] = useState('');
+    const [soundKey, setSoundKey] = useState(attributeTypes.listical[0]);
+    const [soundData, setSoundData] = useState(getSoundData(soundKey, data));
+
+    
+
+    console.log("sound data");
+    console.log(soundData);
+
+    // for now just deal with the first file
+    // convert from string representation
+    var first_file = soundData[0].split(",").map(Number);
+
+    console.log("first file");
+    console.log(first_file);
+
+    useEffect(() => {
+        Service.generateSpectrogram({ sound_data: first_file }).then(res => {
+            setImage(res);
+        });
+    }, []);
+
+
   return (
-    <div className="sm-DetailedView">
+      <div className="sm-DetailedView">
+          {<img src={image} />}
     </div>
   );
+}
+
+function getSoundData(atName, sData) {
+    // each value in values is a string representation of the sound data file
+    const values = sData.map(d => d[atName]);
+    return values;
 }
 
 export default DetailedView;

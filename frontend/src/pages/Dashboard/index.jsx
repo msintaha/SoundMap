@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Overview from '../../components/Overview';
 import Header from '../../components/Header';
+import Service from '../../services/Service';
 import { Backdrop, Box, Button, CircularProgress, Checkbox, FormControlLabel, Modal, Fade } from '@mui/material';
 
 import * as d3 from 'd3';
@@ -20,6 +21,13 @@ function Dashboard() {
   const [attrs, setAttrs] = useState([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [image, setImage] = useState('');
+
+  useEffect(() => {
+    Service.generateSpectrogram({ sample_data: 123 }).then(res => {
+      setImage(res);
+    });
+  }, []);
 
   const onFileUpload = (event) => {
     onCancel();
@@ -71,6 +79,7 @@ function Dashboard() {
       {isLoading && <Box sx={{ position: 'absolute', top: '50%', left: '48.5%' }}>
         <CircularProgress disableShrink color="secondary" />
       </Box>}
+      {/* <img src={image} /> */}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

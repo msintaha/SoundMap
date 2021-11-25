@@ -9,6 +9,7 @@ import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLa
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
 import SummaryView from '../SummaryView';
+import DetailedView from '../DetailedView';
 
 
 function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, compareMode }) {

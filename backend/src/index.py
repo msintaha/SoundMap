@@ -3,6 +3,11 @@ from livereload import Server
 from flask_cors import CORS, cross_origin
 import base64
 import os 
+import io
+import librosa
+import librosa.display
+import matplotlib.pyplot as plt
+import numpy as np
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -22,14 +27,34 @@ incomes = [
 @app.route('/api/generate-spectrogram', methods=['POST'])
 @cross_origin()
 def generate_spectrogram():
-  request_body = request.get_json()
-  print('Data', request_body)
+    request_body = request.get_json()
+    print('Data', request_body)
 
-  filename = 'emoji.png' # Sample image in the src/ folder. This can be the dynamic image generated from librosa
-  image_file = open(os.path.join(dir_path, filename), "rb")
-  encoded_string = base64.b64encode(image_file.read())
+  #filename = 'emoji.png' # Sample image in the src/ folder. This can be the dynamic image generated from librosa
+  #image_file = open(os.path.join(dir_path, filename), "rb")
+  #encoded_string = base64.b64encode(image_file.read())
 
-  return "data:image/jpg;base64," + encoded_string.decode('utf-8')
+    #request_body - the waveform
+    #scale - eg. linear, log, cqt_note, cqt_hz (constant q transform)
+    #sr - the sample rate
+
+    # set sr for now
+    w = np.array(request_body["sound_data"])
+    sr = 22050
+    scale = "log"
+
+    D = librosa.amplitude_to_db(np.abs(librosa.stft(w)), ref=np.max)
+    librosa.display.specshow(D, y_axis=scale,x_axis="time", sr=sr)
+    plt.colorbar(format='%+2.0f dB')
+    plt.title(scale+'-frequency power spectrogram')
+    
+    # save to base64
+    pic_IObytes = io.BytesIO()
+    plt.savefig(pic_IObytes,  format='png')
+    pic_IObytes.seek(0)
+    encoded_string = base64.b64encode(pic_IObytes.read())
+    
+    return "data:image/jpg;base64," + encoded_string.decode('utf-8')
 
 @app.route('/')
 def get():

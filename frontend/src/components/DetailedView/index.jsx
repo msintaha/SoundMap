@@ -6,6 +6,10 @@ import { lazy } from 'react';
 import Service from '../../services/Service';
 
 function DetailedView({ attributeTypes, data }) {
+    if (data == '') {
+        return null;
+    }
+
     const [image, setImage] = useState('');
     const [soundKey, setSoundKey] = useState(attributeTypes.listical[0]);
     const [soundData, setSoundData] = useState(getSoundData(soundKey, data));
@@ -17,7 +21,7 @@ function DetailedView({ attributeTypes, data }) {
 
     // for now just deal with the first file
     // convert from string representation
-    var first_file = soundData[0].split(",").map(Number);
+    var first_file = soundData.split(",").map(Number);
 
     console.log("first file");
     console.log(first_file);
@@ -38,7 +42,7 @@ function DetailedView({ attributeTypes, data }) {
 
 function getSoundData(atName, sData) {
     // each value in values is a string representation of the sound data file
-    const values = sData.map(d => d[atName]);
+    const values = sData[atName];
     return values;
 }
 

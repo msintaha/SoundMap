@@ -29,7 +29,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
   const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
-  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
+    const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
+    const [elementData, setElementData] = useState('');
 
   useEffect(() => {
     const newYAxisLvl = toCheckboxObject(getCategoryLevels(yAxisAttr, data));
@@ -195,7 +196,18 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       d3.select(this)
         .style('stroke', 'none')
         .style('opacity', 0.8)
-    };
+      };
+
+      const mouseclick = function (event) {
+          //const element_data = event.srcElement.__data__;
+          setElementData(event.srcElement.__data__);
+          console.log("click data", elementData);
+
+          //var detailed_view = document.getElementsByClassName("sm-Detailed-View")[0];
+
+          //detailed_view.innerHTML = "<DetailedView attributeTypes={attributeTypes} data={element_data} />"
+
+      }
           
     const simulation = d3.forceSimulation(data)
       .force('x', d3.forceX((d) => x(+Number(d[xAxisAttr]))).strength(5))
@@ -213,10 +225,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .on('mouseover', mouseover)
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
-      .on('click', function(event) {
-        const data = event.srcElement.__data__;
-        console.log('Clicked', data);
-      });
+      .on('click', mouseclick);
 
     // svg.selectAll('text')
     //   .data(data)

@@ -202,12 +202,15 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
         .style('opacity', 0.8)
       };
 
+      var toRemove;
+
       const mouseclick = function (event) {
-          //const element_data = event.srcElement.__data__;
           setElementData(event.srcElement.__data__);
-          console.log("click data");
-          console.log(elementData);
-          console.log("done");
+          if (toRemove) {
+              d3.select(toRemove).attr("r", radius / 2);
+          }
+          toRemove = this;
+          d3.select(this).attr("r", radius * 2);
       }
           
     const simulation = d3.forceSimulation(data)

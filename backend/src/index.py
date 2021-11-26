@@ -6,6 +6,8 @@ import os
 import io
 import librosa
 import librosa.display
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -42,6 +44,9 @@ def generate_spectrogram():
     w = np.array(request_body["sound_data"])
     sr = 22050
     scale = "log"
+
+    # clear plot first
+    plt.clf()
 
     D = librosa.amplitude_to_db(np.abs(librosa.stft(w)), ref=np.max)
     librosa.display.specshow(D, y_axis=scale,x_axis="time", sr=sr)

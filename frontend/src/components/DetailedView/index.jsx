@@ -43,4 +43,13 @@ DetailedView.propTypes = {
     data: PropTypes.object,
 }
 
+DetailedView.propTypes = {
+    attributeTypes: PropTypes.shape({
+        listical: PropTypes.array,
+        ordinal: PropTypes.array,
+        quantitative: PropTypes.array,
+    }),
+    data: PropTypes.array,
+}
+
 export default DetailedView;

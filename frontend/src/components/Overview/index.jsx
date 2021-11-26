@@ -55,15 +55,6 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
     renderAnimatedChart(yAxisLevels, filterCategoryLevels, range);
     }, [yAxisLevels, filterCategoryLevels, range]);
 
-    useEffect(() => {
-        if (elementData != '') {
-            console.log("elementData", elementData);
-            var new_element = React.createElement(DetailedView, { attributeTypes: attributeTypes, data: elementData });
-            ReactDOM.render(new_element, document.getElementById('detailedview'));
-        }
-    }, [elementData]);
-
-
   function renderAnimatedChart(yAxisLevels, filterCategoryLevels, range) {
     const svg = d3.select(chartId).selectAll('svg');
     if (svg._groups.length > 0) { d3.selectAll(`${chartId} > svg`).remove(); }
@@ -217,11 +208,6 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
           console.log("click data");
           console.log(elementData);
           console.log("done");
-
-          //var detailed_view = document.getElementsByClassName("sm-Detailed-View")[0];
-
-          //detailed_view.innerHTML = "<DetailedView attributeTypes={attributeTypes} data={element_data} />"
-
       }
           
     const simulation = d3.forceSimulation(data)

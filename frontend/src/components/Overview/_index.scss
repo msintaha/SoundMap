@@ -42,6 +42,11 @@
         left: 0;
     }
 
+    &-rightPane {
+        display: flex;
+        flex-direction: column;
+    }
+
     &-checkboxes {
         margin: 12px 0 12px 6px;
     }

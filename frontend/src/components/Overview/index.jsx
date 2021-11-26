@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
+=======
+import React, { useEffect, useState, useHasChanged } from 'react';
+import ReactDOM from "react-dom";
+>>>>>>> 9168c933 (Tried to add what I thought should work to re-render the detailed view component every time a different circle is clicked - however, it doesn't actually get the new data properly, and so just continually renders the first clicked circle)
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
@@ -48,7 +53,15 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
 
   useEffect(() => {
     renderAnimatedChart(yAxisLevels, filterCategoryLevels, range);
-  }, [yAxisLevels, filterCategoryLevels, range]);
+    }, [yAxisLevels, filterCategoryLevels, range]);
+
+    useEffect(() => {
+        if (elementData != '') {
+            console.log("elementData", elementData);
+            var new_element = React.createElement(DetailedView, { attributeTypes: attributeTypes, data: elementData });
+            ReactDOM.render(new_element, document.getElementById('detailedview'));
+        }
+    }, [elementData]);
 
 
   function renderAnimatedChart(yAxisLevels, filterCategoryLevels, range) {
@@ -201,7 +214,9 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       const mouseclick = function (event) {
           //const element_data = event.srcElement.__data__;
           setElementData(event.srcElement.__data__);
-          console.log("click data", elementData);
+          console.log("click data");
+          console.log(elementData);
+          console.log("done");
 
           //var detailed_view = document.getElementsByClassName("sm-Detailed-View")[0];
 
@@ -331,7 +346,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
                   {category.value}
                 </div>
               )}
-            </div>
+            </div>        
           </div>
           }
         </div>
@@ -347,6 +362,9 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
           }
         </div>
       }
+        <div className="sm-Detailed-View" id="detailedview">
+
+        </div>
     </div>
   );
 }

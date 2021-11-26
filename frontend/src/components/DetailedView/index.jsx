@@ -32,6 +32,7 @@ function DetailedView({ attributeTypes, data }) {
         });
     }, []);
 
+    console.log("image", image);
 
   return (
       <div className="sm-DetailedView">
@@ -44,6 +45,15 @@ function getSoundData(atName, sData) {
     // each value in values is a string representation of the sound data file
     const values = sData[atName];
     return values;
+}
+
+DetailedView.propTypes = {
+    attributeTypes: PropTypes.shape({
+        listical: PropTypes.array,
+        ordinal: PropTypes.array,
+        quantitative: PropTypes.array,
+    }),
+    data: PropTypes.array,
 }
 
 export default DetailedView;

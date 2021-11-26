@@ -207,7 +207,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       const mouseclick = function (event) {
           setElementData(event.srcElement.__data__);
           if (toRemove) {
-              d3.select(toRemove).attr("r", radius / 2);
+              d3.select(toRemove).attr("r", radius);
           }
           toRemove = this;
           d3.select(this).attr("r", radius * 2);

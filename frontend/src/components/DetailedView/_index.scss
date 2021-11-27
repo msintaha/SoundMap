@@ -3,4 +3,11 @@
     position: relative;
     padding: 8px;
     border-radius: 4px;
+    display: flex;
+
+    #MoreInfo {
+        flex: 1;
+        margin-left: 20px;
+        white-space: pre-wrap;
+    }
 }

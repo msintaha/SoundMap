@@ -2,6 +2,7 @@ import React, { useEffect, useState, useHasChanged } from 'react';
 import PropTypes from 'prop-types';
 import './_index.scss';
 import Service from '../../services/Service';
+//import { text } from 'stream/consumers';
 
 function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
     const [image, setImage] = useState('');
@@ -33,15 +34,6 @@ function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
   );
 }
 
-
-DetailedView.propTypes = {
-    attributeTypes: PropTypes.shape({
-        listical: PropTypes.array,
-        ordinal: PropTypes.array,
-        quantitative: PropTypes.array,
-    }),
-    data: PropTypes.object,
-}
 
 DetailedView.propTypes = {
     attributeTypes: PropTypes.shape({

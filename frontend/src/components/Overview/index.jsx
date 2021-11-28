@@ -335,7 +335,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
                   {category.value}
                 </div>
               )}
-            </div>        
+            </div>
           </div>
           }
         </div>

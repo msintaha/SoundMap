@@ -2,7 +2,6 @@ import React, { useEffect, useState, useHasChanged } from 'react';
 import PropTypes from 'prop-types';
 import './_index.scss';
 import Service from '../../services/Service';
-//import { text } from 'stream/consumers';
 
 function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
     const [image, setImage] = useState('');

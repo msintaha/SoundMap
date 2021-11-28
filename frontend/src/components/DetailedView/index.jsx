@@ -12,7 +12,7 @@ function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
     // only show current selected x and y axis, and filter
     var text_string = yAxisAttr + ": " + String(data[yAxisAttr]) + "\n";
     console.log("filter", categoryToFilterBy);
-    if (categoryToFilterBy != "") {
+    if (categoryToFilterBy != "" && categoryToFilterBy != null) {
         text_string = text_string + categoryToFilterBy + ": " + String(data[categoryToFilterBy]) + "\n";
     }
     text_string = text_string + xAxisAttr + ": " + String(parseFloat(data[xAxisAttr]).toFixed(2)) + "\n";

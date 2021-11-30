@@ -5,10 +5,7 @@ import Service from '../../services/Service';
 
 function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
     const [image, setImage] = useState('');
-    // note: current bug, when beeswarm is reloaded the emphasised circle radius reverts back
-    // also: should adjust the size of this and maybe also the summary view, since they are too big together to fit properly
 
-    
     // only show current selected x and y axis, and filter
     var text_string = yAxisAttr + ": " + String(data[yAxisAttr]) + "\n";
     console.log("filter", categoryToFilterBy);
@@ -20,8 +17,9 @@ function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
 
     useEffect(() => {
         const soundData = data.file_data.split(',').map(Number);
+        const sampleRate = Number(data.sample_rate);
         console.log(soundData);
-        Service.generateSpectrogram({ sound_data: soundData }).then(res => {
+        Service.generateSpectrogram({ sound_data: soundData, sample_rate: sampleRate }).then(res => {
             console.log('received data from endpoint', data);
             setImage(res);
         });

@@ -42,7 +42,7 @@ def generate_spectrogram():
 
     # set sr for now
     w = np.array(request_body["sound_data"])
-    sr = 22050
+    sr = request_body["sample_rate"]
     scale = "log"
 
     # clear plot first

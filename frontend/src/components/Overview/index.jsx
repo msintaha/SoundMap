@@ -36,6 +36,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
     const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
     const [elementData, setElementData] = useState('');
+    const [toRemove, setToRemove] = useState('');
+
 
   useEffect(() => {
     const newYAxisLvl = toCheckboxObject(getCategoryLevels(yAxisAttr, data));
@@ -101,7 +103,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
     setRange({ max: value, min: range.min });
   }
 
-  function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
+    function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
+        console.log("function called: ", toRemove);
     let height = 500;
     if (yAxisLevels.length >= 4 && !isSparse) {
       height = (yAxisLevels.length * (height - (xAxisAttr.endsWith('max') || xAxisAttr.endsWith('min') ? 0 : margin.top))) / 3;
@@ -202,14 +205,20 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
         .style('opacity', 0.8)
       };
 
-      var toRemove;
+        // innerToRemove - can't use toRemove because it has a state and won't update here 
+        // unless the whole page is rendered again
+        var innerToRemove;
 
       const mouseclick = function (event) {
           setElementData(event.srcElement.__data__);
-          if (toRemove) {
-              d3.select(toRemove).attr("r", radius);
+          if (innerToRemove) {
+              d3.select("#" + innerToRemove).attr("r", radius);
           }
-          toRemove = this;
+          if (toRemove != '') {
+              d3.select("#" + toRemove).attr("r", radius);
+          }
+          setToRemove(d3.select(this).attr("id")); // maintain for filter/axis changes
+          innerToRemove = d3.select(this).attr("id"); // to use locally
           d3.select(this).attr("r", radius * 2);
       }
           
@@ -230,16 +239,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
       .on('click', mouseclick);
-
-    // svg.selectAll('text')
-    //   .data(data)
-    //   .enter()
-    //   .append('text')
-    //   .attr('class', 'point-label')
-    //   .text(d => formatCircleLabel(d[colorCategory]))
-    //   .attr('x', (d) => d.x - 10)
-    //   .attr('y', (d) => d.y - 5); 
-
+      // assign ids to circles
+      svg.selectAll("circle").attr("id", function (d, i) { return "c" + String(i); });
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
     }     
@@ -250,7 +251,12 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .duration(1000)
       .ease(d3.easeLinear)
       .attr('cx', (d) => d.x)
-      .attr('cy', (d) => d.y);
+          .attr('cy', (d) => d.y);
+
+    // ensure that the clicked circle radius remains larger after update
+      if (toRemove != '') {
+          d3.select("#" + toRemove).attr("r", radius * 2);
+      }
 
     return svg.node();
   }

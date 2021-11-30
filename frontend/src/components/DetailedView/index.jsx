@@ -29,7 +29,7 @@ function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
 
   return (
       <div className="sm-DetailedView">
-          <img src={image} width="300" height="280" />
+          <img src={image} width="260" height="240" />
           <div id="MoreInfo">
               {text_string}
           </div>

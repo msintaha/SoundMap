@@ -16,9 +16,16 @@ function getRangeWithValues(attributeName, data) {
 }
 
 const COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"];
+const COLOR_FILTER_LIMIT = 6;
+
+function toCheckboxObject(arr, limit = null) {
+    return arr.map((a, idx) => ({ value: a, checked: limit ? !!(idx < limit) : true }));
+}
 
 export {
     COLORS,
+    COLOR_FILTER_LIMIT,
     getCategoryLevels,
     getRangeWithValues,
+    toCheckboxObject,
 };

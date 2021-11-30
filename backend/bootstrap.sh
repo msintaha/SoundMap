@@ -2,4 +2,4 @@
 export FLASK_APP=./src/index.py
 export FLASK_ENV=development
 
-flask run -h 127.0.0.1
+flask run -h localhost -p 5051

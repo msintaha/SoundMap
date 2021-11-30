@@ -10,7 +10,7 @@ module.exports = merge(common, {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env.BASE_URL': JSON.stringify('http://localhost:8080'),
-      'process.env.API_BASE_URL': JSON.stringify('http://localhost:5000/api')
+      'process.env.API_BASE_URL': JSON.stringify('http://localhost:5051/api')
     })
   ],
   devServer: {

@@ -104,7 +104,6 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
   }
 
     function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
-        console.log("function called: ", toRemove);
     let height = 500;
     if (yAxisLevels.length >= 4 && !isSparse) {
       height = (yAxisLevels.length * (height - (xAxisAttr.endsWith('max') || xAxisAttr.endsWith('min') ? 0 : margin.top))) / 3;

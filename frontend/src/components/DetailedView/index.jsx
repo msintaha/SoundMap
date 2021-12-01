@@ -40,7 +40,7 @@ DetailedView.propTypes = {
         ordinal: PropTypes.array,
         quantitative: PropTypes.array,
     }),
-    data: PropTypes.array,
+    data: PropTypes.object,
 }
 
 export default DetailedView;

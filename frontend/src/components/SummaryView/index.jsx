@@ -5,24 +5,18 @@ import * as d3 from 'd3';
 
 import { COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, toCheckboxObject } from '../../utils/attributes';
 
-function SummaryView({ attributeTypes, data, colorPalette}) {
-  const yAxisAttr = attributeTypes.quantitative[1];
-  const xAxisAttr = attributeTypes.ordinal[0];
-  const groupAttr = attributeTypes.ordinal[1];
-  const [xAxisLevels, setxAxisLevels] = useState(toCheckboxObject(getCategoryLevels(xAxisAttr, data)));
+function SummaryView({
+  data, 
+  colorPalette, 
+  xAxisAttr, 
+  xAxisLevels,
+  groupAttr,
+  yAxisAttr,
+  filterCategoryLevels}) {
+
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
-  const categoryToFilterBy = attributeTypes.ordinal[1];
-  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
   const margin = {top: 20, right: 95, bottom: 10, left: 100},
       width = 800 - margin.left - margin.right;
-
-  useEffect(() => {
-    const newYAxisLvl = toCheckboxObject(getCategoryLevels(xAxisAttr, data));
-    const newFilterCategoryLvl = toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT);
-    setxAxisLevels(newYAxisLvl);
-    setFilterCategoryLevels(newFilterCategoryLvl);
-    renderChart(newYAxisLvl, newFilterCategoryLvl, range);
-  }, [xAxisAttr, categoryToFilterBy]);
 
   useEffect(() => {
     const newRange = getRangeWithValues(yAxisAttr, data);
@@ -57,7 +51,7 @@ function SummaryView({ attributeTypes, data, colorPalette}) {
       width,
       showScale: 1,
       yLabel: yAxisAttr,
-      colorCategory: categoryToFilterBy,
+      colorCategory: groupAttr,
       colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
       colorPalette,
       yDomain: [0, range.max]
@@ -157,7 +151,7 @@ function SummaryView({ attributeTypes, data, colorPalette}) {
   return (
     <div className="sm-SummaryView">
       <div id="barchart">
-        {categoryToFilterBy && 
+        {groupAttr && 
           <div className="sm-SummaryView-legends" style={{ width }}>
             {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
               <div key={category.value} className="sm-SummaryView-legend">

@@ -8,7 +8,6 @@ function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
 
     // only show current selected x and y axis, and filter
     var text_string = yAxisAttr + ": " + String(data[yAxisAttr]) + "\n";
-    console.log("filter", categoryToFilterBy);
     if (categoryToFilterBy != "" && categoryToFilterBy != null) {
         text_string = text_string + categoryToFilterBy + ": " + String(data[categoryToFilterBy]) + "\n";
     }
@@ -18,7 +17,6 @@ function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
     useEffect(() => {
         const soundData = data.file_data.split(',').map(Number);
         const sampleRate = Number(data.sample_rate);
-        console.log(soundData);
         Service.generateSpectrogram({ sound_data: soundData, sample_rate: sampleRate }).then(res => {
             console.log('received data from endpoint', data);
             setImage(res);
@@ -42,7 +40,7 @@ DetailedView.propTypes = {
         ordinal: PropTypes.array,
         quantitative: PropTypes.array,
     }),
-    data: PropTypes.array,
+    data: PropTypes.object,
 }
 
 export default DetailedView;

@@ -304,7 +304,9 @@ function Overview({ attributeTypes, data }) {
       <div>
         {filterCategoryLevels.length > 0 && 
         <div className="sm-Summary-view">
-            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} />
+            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS}
+                filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
+                groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels}/>
           </div>
         }
       </div>

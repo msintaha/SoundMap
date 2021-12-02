@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
-=======
-import React, { useEffect, useState, useHasChanged } from 'react';
-import ReactDOM from "react-dom";
->>>>>>> 9168c933 (Tried to add what I thought should work to re-render the detailed view component every time a different circle is clicked - however, it doesn't actually get the new data properly, and so just continually renders the first clicked circle)
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
@@ -238,8 +233,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
       .on('click', mouseclick);
-      // assign ids to circles
-      svg.selectAll("circle").attr("id", function (d, i) { return "c" + String(i); });
+      // assign ids to circles  
+        svg.selectAll("circle").attr("id", function (d, i) { return "c" + String(hashCode(d.file_data)); });
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
     }     
@@ -397,6 +392,7 @@ function wrap(text, width) {
   });
 }
 
+
 // function formatCircleLabel(text) {
 //   if (text.length > 10) {
 //     const textElements = text.split(' ');
@@ -404,6 +400,11 @@ function wrap(text, width) {
 //   }
 //   return text;
 // }
+
+function hashCode(str) {
+    return str.slice(0,Math.floor(str.length/3)).split(',').reduce((prevHash, currVal) =>
+        (((prevHash << 5) - prevHash) + currVal.charCodeAt(0)) | 0, 0);
+}
 
 Overview.propTypes = {
   attributeTypes: PropTypes.shape({

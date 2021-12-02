@@ -151,6 +151,7 @@ function SummaryView({
   return (
     <div className="sm-SummaryView">
       <div id="barchart">
+        <span className="sm-Overview-legendLabel">{groupAttr}</span>
         {groupAttr && 
           <div className="sm-SummaryView-legends" style={{ width }}>
             {filterCategoryLevels.filter(f => f.checked).map((category, index) =>

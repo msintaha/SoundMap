@@ -11,7 +11,7 @@ import CloseOutlined from '@mui/icons-material/CloseOutlined';
 import SummaryView from '../SummaryView';
 
 
-function Overview({ attributeTypes, data, viewIndex }) {
+function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, compareMode }) {
   const chartId = `#beeswarm-${viewIndex}`;
   const width = 695, radius = 3.2, padding = 1.2;
   const margin = {
@@ -23,7 +23,7 @@ function Overview({ attributeTypes, data, viewIndex }) {
   const isSparse = data.length < 100;
 
   const [panelWidth, setPanelWidth] = useState(0);
-  const [xAxisAttr, setXAxis] = useState(attributeTypes.quantitative[0]);
+  const [xAxisAttr, setXAxis] = useState(defaultQuantitativeAttr);
   const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
   const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
@@ -245,92 +245,98 @@ function Overview({ attributeTypes, data, viewIndex }) {
 
   return (
     <div className="sm-Overview">
-      <div className="sm-Overview-filterpanel" style={{width: panelWidth}}>
-        <h6>&nbsp;Filter Panel</h6>
-        <IconButton size="small" className="sm-Overview-filterpanelClose" onClick={() => setPanelWidth(0)}><CloseOutlined fontSize="inherit" /></IconButton>
-        <div className="sm-Overview-filters">
-          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
-            <InputLabel>X-Axis</InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              value={xAxisAttr}
-              onChange={({target}) => setXAxis(target.value)}
-              label="X-Axis"
-            >
-              {attributeTypes.quantitative.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <div className="sm-Overview-rangeChanger">
-            <div className="sm-Overview-rangeVal">
-              <label>Min</label>
-              <Input type="number" value={range.min} placeholder="Min" onChange={setMinValue} />
-            </div>
-            <div className="sm-Overview-rangeVal">
-              <label>Max</label>
-              <Input type="number" value={range.max} placeholder="Max" onChange={setMaxValue} />
-            </div>
-          </div>
-          <hr />
-          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
-            <InputLabel>Y-Axis</InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              value={yAxisAttr}
-              onChange={({target}) => setYAxis(target.value)}
-              label="Y-Axis"
-            >
-              {attributeTypes.ordinal.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <FormGroup className="sm-Overview-checkboxes">
-            {yAxisLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
-          </FormGroup>
-          <hr />
-          <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
-            <InputLabel>Filter By</InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              value={categoryToFilterBy || 'None'}
-              onChange={({target}) => setCategoryToFilterBy(target.value)}
-              label="Filter By"
-            >
-              <MenuItem value="">None</MenuItem>
-              {attributeTypes.ordinal.filter(a => a !== yAxisAttr).map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <FormGroup className="sm-Overview-checkboxes">
-            {filterCategoryLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, filterCategoryLevels, setFilterCategoryLevels, COLOR_FILTER_LIMIT)} checked={level.checked} />} label={level.value} />)}
-          </FormGroup>
-        </div>
-      </div>
-      <IconButton className="sm-Overview-filter" onClick={() => setPanelWidth(230)}><FilterAltIcon /></IconButton>
-      <div id={chartId.replace('#', '')}>
-        {filterCategoryLevels.length > 0 && 
-        <div>
-          <span className="sm-Overview-legendLabel">{categoryToFilterBy}</span>
-          <div className="sm-Overview-legends" style={{ width }}>
-            {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
-              <div key={category.value} className="sm-Overview-legend">
-                <span className="sm-Overview-legendColor" style={{ color: getRecycledColors(colorCategoryLevels.length)[index] }}>&#9679;</span>
-                {category.value}
+      {!compareMode &&
+        <div className="sm-Overview-filterpanel" style={{width: panelWidth}}>
+          <h6>&nbsp;Filter Panel</h6>
+          <IconButton size="small" className="sm-Overview-filterpanelClose" onClick={() => setPanelWidth(0)}><CloseOutlined fontSize="inherit" /></IconButton>
+          <div className="sm-Overview-filters">
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+              <InputLabel>X-Axis</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={xAxisAttr}
+                onChange={({target}) => setXAxis(target.value)}
+                label="X-Axis"
+              >
+                {attributeTypes.quantitative.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <div className="sm-Overview-rangeChanger">
+              <div className="sm-Overview-rangeVal">
+                <label>Min</label>
+                <Input type="number" value={range.min} placeholder="Min" onChange={setMinValue} />
               </div>
-            )}
+              <div className="sm-Overview-rangeVal">
+                <label>Max</label>
+                <Input type="number" value={range.max} placeholder="Max" onChange={setMaxValue} />
+              </div>
+            </div>
+            <hr />
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+              <InputLabel>Y-Axis</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={yAxisAttr}
+                onChange={({target}) => setYAxis(target.value)}
+                label="Y-Axis"
+              >
+                {attributeTypes.ordinal.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <FormGroup className="sm-Overview-checkboxes">
+              {yAxisLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
+            </FormGroup>
+            <hr />
+            <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
+              <InputLabel>Filter By</InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="demo-simple-select-standard"
+                value={categoryToFilterBy || 'None'}
+                onChange={({target}) => setCategoryToFilterBy(target.value)}
+                label="Filter By"
+              >
+                <MenuItem value="">None</MenuItem>
+                {attributeTypes.ordinal.filter(a => a !== yAxisAttr).map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <FormGroup className="sm-Overview-checkboxes">
+              {filterCategoryLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, filterCategoryLevels, setFilterCategoryLevels, COLOR_FILTER_LIMIT)} checked={level.checked} />} label={level.value} />)}
+            </FormGroup>
           </div>
         </div>
-        }
-      </div>
-      <div>
-        {filterCategoryLevels.length > 0 && 
-        <div className="sm-Summary-view">
-            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
-                filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
-                groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels}/>
+      }
+      {!compareMode && <IconButton className="sm-Overview-filter" onClick={() => setPanelWidth(230)}><FilterAltIcon /></IconButton>}
+      {(!compareMode || compareMode === 'Overview') &&
+        <div id={chartId.replace('#', '')}>
+          {filterCategoryLevels.length > 0 && 
+          <div>
+            <span className="sm-Overview-legendLabel">{categoryToFilterBy}</span>
+            <div className="sm-Overview-legends" style={{ width }}>
+              {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
+                <div key={category.value} className="sm-Overview-legend">
+                  <span className="sm-Overview-legendColor" style={{ color: getRecycledColors(colorCategoryLevels.length)[index] }}>&#9679;</span>
+                  {category.value}
+                </div>
+              )}
+            </div>
           </div>
-        }
-      </div>
+          }
+        </div>
+      }
+      {(!compareMode || compareMode === 'Summary') &&
+        <div>
+          {filterCategoryLevels.length > 0 && 
+          <div className="sm-Summary-view">
+              <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
+                  filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
+                  groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels}/>
+            </div>
+          }
+        </div>
+      }
     </div>
   );
 }

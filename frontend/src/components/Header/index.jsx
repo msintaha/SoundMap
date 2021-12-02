@@ -4,7 +4,7 @@ import './_index.scss';
 import { Button } from '@mui/material';
 import BasicMenu from '../BasicMenu';
 
-function Header(props) {
+function Header({ items, onAddView, onCompareView, onFileUpload, onReset, shouldShowReset }) {
   return (
     <div className="sm-Header">
       <nav className="navbar navbar-expand-lg navbar-light bg-light justify-content-between">
@@ -13,7 +13,9 @@ function Header(props) {
           <a className="sm-Header-title navbar-brand" href="/">SoundMap</a>
         </div>
         <div className="sm-Header-right">
-          {props.items && <BasicMenu name="Add View" items={props.items} onItemClick={props.onItemClick} />}
+          {shouldShowReset && <Button className="sm-Header-button" onClick={onReset}>Reset</Button>}
+          {onCompareView && <BasicMenu name="Compare Views" items={['Overview', 'Summary']} onItemClick={onCompareView} />}
+          {items && <BasicMenu name="Add View" items={items} onItemClick={onAddView} />}
           <Button
             className="sm-Header-button"
             variant="outlined"
@@ -21,7 +23,7 @@ function Header(props) {
           >
             Upload File
             <input
-              onChange={props.onFileUpload}
+              onChange={onFileUpload}
               type="file"
               accept=".csv"
               hidden

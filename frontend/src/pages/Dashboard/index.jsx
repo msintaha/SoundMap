@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import Overview from '../../components/Overview';
 import Header from '../../components/Header';
-import Service from '../../services/Service';
 import { Backdrop, Box, Button, CircularProgress, Checkbox, FormControlLabel, Modal, Fade } from '@mui/material';
 
 import * as d3 from 'd3';
@@ -22,6 +21,7 @@ function Dashboard() {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [viewsList, setViewsList] = useState([]);
+  const [comparisonView, setComparisonView] = useState(null);
 
   const onFileUpload = (event) => {
     onCancel();
@@ -80,12 +80,19 @@ function Dashboard() {
     }]);
   }
 
+  function onCompareView(selectedChartType) {
+    setComparisonView(selectedChartType);
+  }
+
   return (
     <div className="sm-Dashboard">
       <Header
         onFileUpload={onFileUpload}
         items={data ? attributeTypes.quantitative : null}
-        onItemClick={onAddView}
+        onAddView={onAddView}
+        onCompareView={viewsList.length > 1 ? onCompareView : null}
+        onReset={() => setComparisonView(null)}
+        shouldShowReset={!!comparisonView}
       />
       {isLoading && <Box sx={{ position: 'absolute', top: '50%', left: '48.5%' }}>
         <CircularProgress disableShrink color="secondary" />
@@ -130,9 +137,9 @@ function Dashboard() {
           </Box>
         </Fade>
       </Modal>
-      <div className="sm-Dashboard-body">
+      <div className={comparisonView ? 'sm-Dashboard-bodyGrid' : 'sm-Dashboard-body'}>
         {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed ?
-          viewsList.map((view, idx) => <Overview key={idx} viewIndex={idx} attributeTypes={attributeTypes} data={data} />) : null
+          viewsList.map((view, idx) => <Overview key={`${view}:${idx}`} compareMode={comparisonView} defaultQuantitativeAttr={view.quantitative} viewIndex={idx} attributeTypes={attributeTypes} data={data} />) : null
         }
         {!data.length && !isLoading &&
           <div className="sm-Dashboard-empty">

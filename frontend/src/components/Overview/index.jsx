@@ -234,7 +234,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .on('mouseleave', mouseleave)
       .on('click', mouseclick);
       // assign ids to circles  
-        svg.selectAll("circle").attr("id", function (d, i) { return "c" + String(hashCode(d.file_data)); });
+        svg.selectAll("circle").attr("id", function (d) { return "c" + String(hashCode(d.file_data)); });
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
     }     
@@ -339,7 +339,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
           </div>
           }
         </div>
-      }
+          }
+      <div className="sm-Overview-rightPane">
       {(!compareMode || compareMode === 'Summary') &&
         <div>
           {filterCategoryLevels.length > 0 && 
@@ -351,9 +352,16 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
           }
         </div>
       }
-        <div className="sm-Detailed-View" id="detailedview">
-
-        </div>
+          {(!compareMode || compareMode === 'DetailedView') &&
+              <div>
+                  {elementData &&
+                      <div className="sm-Detailed-View" id="detailedview">
+                          <DetailedView data={elementData} xAxisAttr={xAxisAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
+                      </div>
+                  }
+              </div>
+              }
+      </div>
     </div>
   );
 }

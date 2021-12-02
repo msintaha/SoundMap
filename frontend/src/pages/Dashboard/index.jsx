@@ -21,13 +21,7 @@ function Dashboard() {
   const [attrs, setAttrs] = useState([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  const [image, setImage] = useState('');
-
-  useEffect(() => {
-    Service.generateSpectrogram({ sample_data: 123 }).then(res => {
-      setImage(res);
-    });
-  }, []);
+  const [viewsList, setViewsList] = useState([]);
 
   const onFileUpload = (event) => {
     onCancel();
@@ -43,11 +37,6 @@ function Dashboard() {
       setAttrs(Object.keys(csvData[0]));
       setOpen(true);
       setLoading(false);
-      // setAttributeTypes({
-      //   ordinal: ['stimulus', 'sex', 'breed'],
-      //   quantitative: ['meow_duration', 'est_peak_frequency'],
-      //   listical: ['file_data']
-      // });
     }
 
     reader.readAsText(file);
@@ -65,6 +54,11 @@ function Dashboard() {
   function onConfirm() {
     setIsConfirmed(true);
     setOpen(false);
+    setViewsList([{
+      ordinal: attributeTypes.ordinal[0],
+      quantitative: attributeTypes.quantitative[0],
+      filterBy: attributeTypes.ordinal[1]
+    }]);
   }
 
   function onCancel() {
@@ -78,13 +72,24 @@ function Dashboard() {
     });
   }
 
+  function onAddView(quantitativeAttr) {
+    setViewsList([...viewsList, {
+      ordinal: attributeTypes.ordinal[0],
+      quantitative: quantitativeAttr,
+      filterBy: attributeTypes.ordinal[1]
+    }]);
+  }
+
   return (
     <div className="sm-Dashboard">
-      <Header onFileUpload={onFileUpload} />
+      <Header
+        onFileUpload={onFileUpload}
+        items={data ? attributeTypes.quantitative : null}
+        onItemClick={onAddView}
+      />
       {isLoading && <Box sx={{ position: 'absolute', top: '50%', left: '48.5%' }}>
         <CircularProgress disableShrink color="secondary" />
       </Box>}
-      {/* <img src={image} /> */}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -126,7 +131,9 @@ function Dashboard() {
         </Fade>
       </Modal>
       <div className="sm-Dashboard-body">
-        {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed && <Overview attributeTypes={attributeTypes} data={data} />}
+        {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed ?
+          viewsList.map((view, idx) => <Overview key={idx} viewIndex={idx} attributeTypes={attributeTypes} data={data} />) : null
+        }
         {!data.length && !isLoading &&
           <div className="sm-Dashboard-empty">
             Get started by uploading a CSV file

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useHasChanged } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
@@ -11,7 +11,8 @@ import CloseOutlined from '@mui/icons-material/CloseOutlined';
 import SummaryView from '../SummaryView';
 
 
-function Overview({ attributeTypes, data }) {
+function Overview({ attributeTypes, data, viewIndex }) {
+  const chartId = `#beeswarm-${viewIndex}`;
   const width = 695, radius = 3.2, padding = 1.2;
   const margin = {
     left: 70,
@@ -49,8 +50,8 @@ function Overview({ attributeTypes, data }) {
 
 
   function renderAnimatedChart(yAxisLevels, filterCategoryLevels, range) {
-    const svg = d3.select("#beeswarm").selectAll('svg');
-    if (svg._groups.length > 0) { d3.selectAll("#beeswarm > svg").remove(); }
+    const svg = d3.select(chartId).selectAll('svg');
+    if (svg._groups.length > 0) { d3.selectAll(`${chartId} > svg`).remove(); }
 
     const yAxisLabels = yAxisLevels.filter(y => y.checked).map(y => y.value);
     const filterCategoryLabels = filterCategoryLevels.filter(f => f.checked).map(f => f.value);
@@ -121,7 +122,7 @@ function Overview({ attributeTypes, data }) {
       .range([isSparse ? 850 : height + margin.bottom, isSparse ? margin.top - 20 : margin.top])
 
 
-    const svg = d3.select('#beeswarm').append('svg')
+    const svg = d3.select(chartId).append('svg')
       .attr('width', width)
       .attr('height', height + 10)
       .attr('viewBox', [0, 0, width, height])
@@ -166,7 +167,7 @@ function Overview({ attributeTypes, data }) {
       .text(d => d)
       .call(wrap, 75);
     
-    const Tooltip = d3.select('#beeswarm')
+    const Tooltip = d3.select(chartId)
       .append("div")
       .attr("class", 'popover');
 
@@ -306,7 +307,7 @@ function Overview({ attributeTypes, data }) {
         </div>
       </div>
       <IconButton className="sm-Overview-filter" onClick={() => setPanelWidth(230)}><FilterAltIcon /></IconButton>
-      <div id="beeswarm">
+      <div id={chartId.replace('#', '')}>
         {filterCategoryLevels.length > 0 && 
         <div>
           <span className="sm-Overview-legendLabel">{categoryToFilterBy}</span>
@@ -324,7 +325,7 @@ function Overview({ attributeTypes, data }) {
       <div>
         {filterCategoryLevels.length > 0 && 
         <div className="sm-Summary-view">
-            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS}
+            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
                 filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
                 groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels}/>
           </div>

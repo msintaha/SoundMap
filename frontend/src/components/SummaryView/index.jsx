@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useHasChanged } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
 
-import { COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, toCheckboxObject } from '../../utils/attributes';
+import { getRangeWithValues } from '../../utils/attributes';
 
 function SummaryView({
   data, 
@@ -12,8 +12,10 @@ function SummaryView({
   xAxisLevels,
   groupAttr,
   yAxisAttr,
-  filterCategoryLevels}) {
-
+  filterCategoryLevels,
+  viewIndex,
+}) {
+  const chartId = `#barchart-${viewIndex}`;
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
   const margin = {top: 20, right: 95, bottom: 10, left: 100},
       width = 800 - margin.left - margin.right;
@@ -33,8 +35,8 @@ function SummaryView({
   }, [colorPalette]);
 
   function renderChart(xAxisLevels, filterCategoryLevels, range) {
-    const svg = d3.select("#barchart").selectAll('svg');
-    if (svg._groups.length > 0) { d3.selectAll("#barchart > svg").remove(); }
+    const svg = d3.select(chartId).selectAll('svg');
+    if (svg._groups.length > 0) { d3.selectAll(`${chartId} > svg`).remove(); }
 
     const filterData = xAxisLevels.filter(y => y.checked)
       .map(y => ({name: y.value, value: data.filter(d => d[xAxisAttr] === y.value)}));
@@ -74,11 +76,11 @@ function SummaryView({
     colorPalette
   } = {}) {
 
-    const svg = d3.select("#barchart")
-        .append("svg")
-        .attr("width", width - marginLeft - marginRight)
-        .attr("height", height - marginTop - marginBottom)
-        .attr("viewBox", [0, 0, width, height])
+    const svg = d3.select(chartId)
+        .append('svg')
+        .attr('width', width - marginLeft - marginRight)
+        .attr('height', height - marginTop - marginBottom)
+        .attr('viewBox', [0, 0, width, height])
 
     var groups = d3.map(data, function(d) {return(d.group)}).keys()
 
@@ -111,16 +113,16 @@ function SummaryView({
       .data(data)
       .enter()
       .append('g')
-        .attr("transform", function(d, i) { return "translate(" + x(i) + ",0)"; })
+        .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'; })
 
-      .selectAll("rect")
+      .selectAll('rect')
       .data(function(d) { return colorCategoryLevels.map(function(key) { return {key: key, value: d.subgroups.find(v => v.name == key)} }); })
-      .enter().append("rect")
-        .attr("x", function(d) { return xSubgroup(d.key); })
-        .attr("y", function(d) { return y(d.value.avg); })
-        .attr("width", xSubgroup.bandwidth())
-        .attr("height", function(d) { return y(0) - y(d.value.avg); })
-        .attr("fill", function(d) { return color(d.key); });
+      .enter().append('rect')
+        .attr('x', function(d) { return xSubgroup(d.key); })
+        .attr('y', function(d) { return y(d.value.avg); })
+        .attr('width', xSubgroup.bandwidth())
+        .attr('height', function(d) { return y(0) - y(d.value.avg); })
+        .attr('fill', function(d) { return color(d.key); });
 
     function xAxis(g) {
       g.attr('transform', `translate(0, ${height - marginBottom})`)
@@ -137,12 +139,12 @@ function SummaryView({
     svg.append('g').call(yAxis);
     svg.append('g').call(xAxis);
 
-    svg.append("text")
-      .attr("class", "y label")
-      .attr("text-anchor", "end")
-      .attr("y", 0)
-      .attr("dy", ".25em")
-      .attr("transform", "rotate(-90)")
+    svg.append('text')
+      .attr('class', 'y label')
+      .attr('text-anchor', 'end')
+      .attr('y', 0)
+      .attr('dy', '.25em')
+      .attr('transform', 'rotate(-90)')
       .text(yAxisAttr);
     return svg.node();
   }
@@ -150,7 +152,7 @@ function SummaryView({
 
   return (
     <div className="sm-SummaryView">
-      <div id="barchart">
+      <div id={chartId.replace('#', '')} className="sm-SummaryView-chart">
         <span className="sm-Overview-legendLabel">{groupAttr}</span>
         {groupAttr && 
           <div className="sm-SummaryView-legends" style={{ width }}>

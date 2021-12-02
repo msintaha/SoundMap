@@ -10,5 +10,10 @@
 
     &-button {
         text-transform: capitalize !important;
+        margin-right: 4px !important;
+    }
+
+    &-right {
+        display: flex;
     }
 }

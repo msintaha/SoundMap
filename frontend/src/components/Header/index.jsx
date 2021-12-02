@@ -2,6 +2,7 @@ import React from 'react';
 import logo from '../../assets/images/wave.png';
 import './_index.scss';
 import { Button } from '@mui/material';
+import BasicMenu from '../BasicMenu';
 
 function Header(props) {
   return (
@@ -11,7 +12,8 @@ function Header(props) {
           <img src={logo} height="22" />
           <a className="sm-Header-title navbar-brand" href="/">SoundMap</a>
         </div>
-        <div>
+        <div className="sm-Header-right">
+          {props.items && <BasicMenu name="Add View" items={props.items} onItemClick={props.onItemClick} />}
           <Button
             className="sm-Header-button"
             variant="outlined"

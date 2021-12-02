@@ -19,7 +19,7 @@ const COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"
 const COLOR_FILTER_LIMIT = 6;
 
 function toCheckboxObject(arr, limit = null) {
-    return arr.map((a, idx) => ({ value: a, checked: limit ? !!(idx < limit) : true }));
+    return arr.map((a, idx) => ({ value: a, checked: true }));
 }
 
 export {

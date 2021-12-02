@@ -82,6 +82,10 @@
        text-transform: capitalize;
     }
 
+    .point-label {
+        font-size: 12px;
+    }
+
     &-rangeVal {
         width: 45%;
         
@@ -106,6 +110,13 @@
         padding-bottom: 8px;
         border-bottom: 1px dashed #dedede;
         flex-wrap: wrap;
+    }
+
+    &-legendLabel {
+        display: flex;
+        font-size: 14px;
+        font-weight: 500;
+        justify-content: center;
     }
 
     &-legend {

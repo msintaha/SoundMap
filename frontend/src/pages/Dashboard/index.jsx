@@ -43,6 +43,11 @@ function Dashboard() {
       setAttrs(Object.keys(csvData[0]));
       setOpen(true);
       setLoading(false);
+      // setAttributeTypes({
+      //   ordinal: ['stimulus', 'sex', 'breed'],
+      //   quantitative: ['meow_duration', 'est_peak_frequency'],
+      //   listical: ['file_data']
+      // });
     }
 
     reader.readAsText(file);

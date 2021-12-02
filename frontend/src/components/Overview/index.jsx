@@ -53,23 +53,28 @@ function Overview({ attributeTypes, data }) {
     if (svg._groups.length > 0) { d3.selectAll("#beeswarm > svg").remove(); }
 
     const yAxisLabels = yAxisLevels.filter(y => y.checked).map(y => y.value);
+    const filterCategoryLabels = filterCategoryLevels.filter(f => f.checked).map(f => f.value);
+    const shouldApplyFilterCategory = categoryToFilterBy && filterCategoryLabels.length;
+
+    function filterFn(data, yAxisAttr, filterAttr) {
+      if (shouldApplyFilterCategory) {
+        return yAxisLabels.includes(data[yAxisAttr]) && filterCategoryLabels.includes(data[filterAttr]);
+      }
+      return yAxisLabels.includes(data[yAxisAttr]);
+    }
+
     AnimatedBeeswarm(
-      data.filter(d => yAxisLabels.includes(d[yAxisAttr])),
+      data.filter(d => filterFn(d, yAxisAttr, categoryToFilterBy)),
       xAxisAttr,
       yAxisAttr,
       categoryToFilterBy,
-      filterCategoryLevels.filter(f => f.checked).map(f => f.value),
+      filterCategoryLabels,
       yAxisLabels,
       [range.min, range.max]
     )
   }
 
   function setChecked(event, value, data, setFn, limit = null) {
-    const checkedLength = data.filter(d => d.checked).length;
-
-    if (limit && checkedLength >= limit && event.target.checked) {
-      return;
-    }
     const newData = data.map(d => {
       if (d.value === value) {
         d.checked = event.target.checked;
@@ -105,10 +110,11 @@ function Overview({ attributeTypes, data }) {
     const xAxis = g => g
       .attr('transform', `translate(0,${height - margin.top})`)
       .call(d3.axisBottom(x));
-  
+    
+
     const color = d3.scaleOrdinal()
       .domain(colorCategoryLevels)
-      .range(_.clone(COLORS).slice(0, colorCategoryLevels.length));
+      .range(getRecycledColors(colorCategoryLevels.length));
 
     const y = d3.scaleBand()
       .domain(yAxisLevels)
@@ -210,6 +216,15 @@ function Overview({ attributeTypes, data }) {
         console.log('Clicked', data);
       });
 
+    // svg.selectAll('text')
+    //   .data(data)
+    //   .enter()
+    //   .append('text')
+    //   .attr('class', 'point-label')
+    //   .text(d => formatCircleLabel(d[colorCategory]))
+    //   .attr('x', (d) => d.x - 10)
+    //   .attr('y', (d) => d.y - 5); 
+
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
     }     
@@ -224,6 +239,8 @@ function Overview({ attributeTypes, data }) {
 
     return svg.node();
   }
+
+  const colorCategoryLevels = filterCategoryLevels.filter(f => f.checked).map(f => f.value);
 
   return (
     <div className="sm-Overview">
@@ -291,14 +308,17 @@ function Overview({ attributeTypes, data }) {
       <IconButton className="sm-Overview-filter" onClick={() => setPanelWidth(230)}><FilterAltIcon /></IconButton>
       <div id="beeswarm">
         {filterCategoryLevels.length > 0 && 
+        <div>
+          <span className="sm-Overview-legendLabel">{categoryToFilterBy}</span>
           <div className="sm-Overview-legends" style={{ width }}>
             {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
               <div key={category.value} className="sm-Overview-legend">
-                <span className="sm-Overview-legendColor" style={{ color: COLORS[index] }}>&#9679;</span>
+                <span className="sm-Overview-legendColor" style={{ color: getRecycledColors(colorCategoryLevels.length)[index] }}>&#9679;</span>
                 {category.value}
               </div>
             )}
           </div>
+        </div>
         }
       </div>
       <div>
@@ -347,6 +367,27 @@ function wrap(text, width) {
     }
   });
 }
+
+function getRecycledColors(limit) {
+  if (limit <= COLORS.length) {
+    return COLORS.slice(0, limit);
+  }
+  let newColors = _.clone(COLORS);
+  while (true) {
+    newColors = newColors.concat(COLORS);
+    if (limit <= newColors.length) {
+      return newColors.slice(0, limit);
+    }
+  }
+}
+
+// function formatCircleLabel(text) {
+//   if (text.length > 10) {
+//     const textElements = text.split(' ');
+//     return textElements.map(e => e[0] + '.').join('');
+//   }
+//   return text;
+// }
 
 Overview.propTypes = {
   attributeTypes: PropTypes.shape({

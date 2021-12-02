@@ -22,10 +22,24 @@ function toCheckboxObject(arr, limit = null) {
     return arr.map((a, idx) => ({ value: a, checked: true }));
 }
 
+function getRecycledColors(limit) {
+    if (limit <= COLORS.length) {
+      return COLORS.slice(0, limit);
+    }
+    let newColors = _.clone(COLORS);
+    while (true) {
+      newColors = newColors.concat(COLORS);
+      if (limit <= newColors.length) {
+        return newColors.slice(0, limit);
+      }
+    }
+}
+
 export {
     COLORS,
     COLOR_FILTER_LIMIT,
     getCategoryLevels,
     getRangeWithValues,
+    getRecycledColors,
     toCheckboxObject,
 };

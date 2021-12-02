@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import _ from 'lodash';
 
-import { COLORS, COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, toCheckboxObject } from '../../utils/attributes';
+import { COLORS, COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, getRecycledColors, toCheckboxObject } from '../../utils/attributes';
 import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Select, MenuItem, Input } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
@@ -367,19 +367,6 @@ function wrap(text, width) {
         }
     }
   });
-}
-
-function getRecycledColors(limit) {
-  if (limit <= COLORS.length) {
-    return COLORS.slice(0, limit);
-  }
-  let newColors = _.clone(COLORS);
-  while (true) {
-    newColors = newColors.concat(COLORS);
-    if (limit <= newColors.length) {
-      return newColors.slice(0, limit);
-    }
-  }
 }
 
 // function formatCircleLabel(text) {

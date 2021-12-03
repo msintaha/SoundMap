@@ -22,6 +22,14 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
     bottom: 30
   };
   const isSparse = data.length < 100;
+  let sampleRateAttr, fileDataAttr;
+  attributeTypes.listical.forEach(attr => {
+    if (data[0][attr].includes(',')) {
+      fileDataAttr = attr;
+    } else {
+      sampleRateAttr = attr;
+    }
+  });
 
   const [panelWidth, setPanelWidth] = useState(0);
   const [xAxisAttr, setXAxis] = useState(defaultQuantitativeAttr);
@@ -241,7 +249,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .on('click', mouseclick);
     
     // assign ids to circles
-    svg.selectAll("circle").attr("id", function (d) { return "c" + String(hashCode(d.file_data)); });
+    svg.selectAll("circle").attr("id", function (d) { return "c" + String(hashCode(d[fileDataAttr])); });
     
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
@@ -308,7 +316,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
               </Select>
             </FormControl>
             <FormGroup className="sm-Overview-checkboxes">
-              {yAxisLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
+              {yAxisLevels.map((level, i) => <FormControlLabel key={i} className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, yAxisLevels, setYAxisLevels)} checked={level.checked} />} label={level.value} />)}
             </FormGroup>
             <hr />
             <FormControl variant="standard" sx={{ m: 1, minWidth: 100, maxWidth: 225 }}>
@@ -325,7 +333,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
               </Select>
             </FormControl>
             <FormGroup className="sm-Overview-checkboxes">
-              {filterCategoryLevels.map(level => <FormControlLabel className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, filterCategoryLevels, setFilterCategoryLevels, COLOR_FILTER_LIMIT)} checked={level.checked} />} label={level.value} />)}
+              {filterCategoryLevels.map((level, i) => <FormControlLabel key={i} className="sm-Overview-cbLabel" sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, level.value, filterCategoryLevels, setFilterCategoryLevels, COLOR_FILTER_LIMIT)} checked={level.checked} />} label={level.value} />)}
             </FormGroup>
           </div>
         </div>
@@ -351,7 +359,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       <div className="sm-Overview-rightPane">
         {!compareMode && elementData &&
           <div className="sm-Overview-details">
-            <DetailedView data={elementData} xAxisAttr={xAxisAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
+            <DetailedView data={elementData} xAxisAttr={xAxisAttr} fileDataAttr={fileDataAttr} sampleRateAttr={sampleRateAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
           </div>
         }
         {(!compareMode || compareMode === 'Summary') &&

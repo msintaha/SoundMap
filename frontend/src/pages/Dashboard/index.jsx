@@ -125,19 +125,19 @@ function Dashboard() {
               <div className="sm-Dashboard-attrContainer">
                 <h5>Ordinal Attributes</h5>
                 <div className="sm-Dashboard-checkboxes">
-                  {attrs.map(v => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'ordinal', v)} checked={attributeTypes.ordinal.includes(v)} />} label={v} />)}
+                  {attrs.map(v => <FormControlLabel key={v} sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'ordinal', v)} checked={attributeTypes.ordinal.includes(v)} />} label={v} />)}
                 </div>
               </div>
               <div className="sm-Dashboard-attrContainer">
                 <h5>Quantitative Attributes</h5>
                 <div className="sm-Dashboard-checkboxes">
-                  {attrs.map(v => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'quantitative', v)} checked={attributeTypes.quantitative.includes(v)} />} label={v} />)}
+                  {attrs.map(v => <FormControlLabel key={v} sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'quantitative', v)} checked={attributeTypes.quantitative.includes(v)} />} label={v} />)}
                 </div>
               </div>
               <div className="sm-Dashboard-attrContainer">
                 <h5>Sound Attributes</h5>
                 <div className="sm-Dashboard-checkboxes">
-                  {attrs.map(v => <FormControlLabel sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'listical', v)} checked={attributeTypes.listical.includes(v)} />} label={v} />)}
+                  {attrs.map(v => <FormControlLabel key={v} sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'listical', v)} checked={attributeTypes.listical.includes(v)} />} label={v} />)}
                 </div>
               </div>
             </div>

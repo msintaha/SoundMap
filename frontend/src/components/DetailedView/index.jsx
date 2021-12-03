@@ -4,14 +4,14 @@ import './_index.scss';
 import Service from '../../services/Service';
 import SkeletonLoader from '../SkeletonLoader';
 
-function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
+function DetailedView({ data, fileDataAttr, sampleRateAttr, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
 	const [image, setImage] = useState('');
 	const [isLoading, setLoading] = useState(false);
 
 	useEffect(() => {
 		setLoading(true);
-		const soundData = data.file_data.split(',').map(Number);
-		const sampleRate = Number(data.sample_rate);
+		const soundData = data[fileDataAttr].split(',').map(Number);
+		const sampleRate = Number(data[sampleRateAttr]);
 		Service.generateSpectrogram({ sound_data: soundData, sample_rate: sampleRate }).then(res => {
 			setImage(res);
 			setLoading(false);

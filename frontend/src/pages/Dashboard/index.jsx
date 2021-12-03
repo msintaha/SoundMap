@@ -150,7 +150,7 @@ function Dashboard() {
       </Modal>
       <div className={comparisonView ? 'sm-Dashboard-bodyGrid' : 'sm-Dashboard-body'}>
         {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed &&
-          <div>
+          <>
             {viewsList.map((view, idx) => 
               <Overview
                 key={`${view}:${idx}`}
@@ -161,7 +161,7 @@ function Dashboard() {
                 data={data}
               />)}
             <div ref={viewEnd} />
-          </div>
+          </>
         }
         {!data.length && !isLoading &&
           <div className="sm-Dashboard-empty">

@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import './_index.scss';
 import Service from '../../services/Service';
-import { Box, CircularProgress, Skeleton } from '@mui/material';
 import SkeletonLoader from '../SkeletonLoader';
 
 function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
 	const [image, setImage] = useState('');
-	const [isLoading, setLoading] = useState(true);
+	const [isLoading, setLoading] = useState(false);
 
 	useEffect(() => {
 		setLoading(true);
@@ -31,20 +30,6 @@ function DetailedView({ data, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
 			</div>
     </div>
   );
-
-	// return (
-	// 	<div>
-	// 			<SkeletonLoader />
-	// 			<div className="sm-DetailedView">
-	// 				<img src={image} className="sm-DetailedView-spectrogram" />
-	// 				<div className="sm-DetailedView-metadata">
-	// 					<div><strong>{yAxisAttr}:</strong> {data[yAxisAttr]}</div>
-	// 					<div><strong>{xAxisAttr}:</strong> {parseFloat(data[xAxisAttr]).toFixed(2)}</div>
-	// 					<div><strong>{categoryToFilterBy}:</strong> {data[categoryToFilterBy]}</div>
-	// 				</div>
-	// 			</div>
-	// 	</div>
-	// )
 }
 
 

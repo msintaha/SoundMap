@@ -29,9 +29,9 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
   const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
   const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
-    const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
-    const [elementData, setElementData] = useState('');
-    const [toRemove, setToRemove] = useState('');
+  const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
+  const [elementData, setElementData] = useState('');
+  const [toRemove, setToRemove] = useState('');
 
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
     setRange({ max: value, min: range.min });
   }
 
-    function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
+  function AnimatedBeeswarm(data, xAxisAttr, yAxisAttr, colorCategory, colorCategoryLevels, yAxisLevels, xDomain) {
     let height = 500;
     if (yAxisLevels.length >= 4 && !isSparse) {
       height = (yAxisLevels.length * (height - (xAxisAttr.endsWith('max') || xAxisAttr.endsWith('min') ? 0 : margin.top))) / 3;
@@ -199,22 +199,23 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
         .style('opacity', 0.8)
       };
 
-        // innerToRemove - can't use toRemove because it has a state and won't update here 
-        // unless the whole page is rendered again
-        var innerToRemove;
+    // innerToRemove - can't use toRemove because it has a state and won't update here 
+    // unless the whole page is rendered again
+    let innerToRemove;
 
-      const mouseclick = function (event) {
-          setElementData(event.srcElement.__data__);
-          if (innerToRemove) {
-              d3.select("#" + innerToRemove).attr("r", radius);
-          }
-          if (toRemove != '') {
-              d3.select("#" + toRemove).attr("r", radius);
-          }
-          setToRemove(d3.select(this).attr("id")); // maintain for filter/axis changes
-          innerToRemove = d3.select(this).attr("id"); // to use locally
-          d3.select(this).attr("r", radius * 2);
+    const mouseclick = function (event) {
+      if (compareMode) { return; }
+      setElementData(event.srcElement.__data__);
+      if (innerToRemove) {
+        d3.select("#" + innerToRemove).attr("r", radius);
       }
+      if (toRemove !== '') {
+        d3.select("#" + toRemove).attr("r", radius);
+      }
+      setToRemove(d3.select(this).attr("id")); // maintain for filter/axis changes
+      innerToRemove = d3.select(this).attr("id"); // to use locally
+      d3.select(this).attr("r", radius * 2);
+    }
           
     const simulation = d3.forceSimulation(data)
       .force('x', d3.forceX((d) => x(+Number(d[xAxisAttr]))).strength(5))
@@ -233,8 +234,10 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .on('mousemove', mousemove)
       .on('mouseleave', mouseleave)
       .on('click', mouseclick);
-      // assign ids to circles  
-        svg.selectAll("circle").attr("id", function (d) { return "c" + String(hashCode(d.file_data)); });
+    
+    // assign ids to circles
+    svg.selectAll("circle").attr("id", function (d) { return "c" + String(hashCode(d.file_data)); });
+    
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
     }     
@@ -245,12 +248,12 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       .duration(1000)
       .ease(d3.easeLinear)
       .attr('cx', (d) => d.x)
-          .attr('cy', (d) => d.y);
+      .attr('cy', (d) => d.y);
 
     // ensure that the clicked circle radius remains larger after update
-      if (toRemove != '') {
-          d3.select("#" + toRemove).attr("r", radius * 2);
-      }
+    if (toRemove !== '') {
+      d3.select("#" + toRemove).attr("r", radius * 2);
+    }
 
     return svg.node();
   }
@@ -339,28 +342,28 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
           </div>
           }
         </div>
-          }
-      <div className="sm-Overview-rightPane">
-      {(!compareMode || compareMode === 'Summary') &&
-        <div>
-          {filterCategoryLevels.length > 0 && 
-          <div className="sm-Summary-view">
-              <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
-                  filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
-                  groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels}/>
-            </div>
-          }
-        </div>
       }
-          {(!compareMode || compareMode === 'DetailedView') &&
-              <div>
-                  {elementData &&
-                      <div className="sm-Detailed-View" id="detailedview">
-                          <DetailedView data={elementData} xAxisAttr={xAxisAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
-                      </div>
-                  }
+      <div className="sm-Overview-rightPane">
+        {!compareMode &&
+          <>
+            {elementData &&
+              <div className="sm-Overview-details">
+                <DetailedView data={elementData} xAxisAttr={xAxisAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
               </div>
-              }
+            }
+          </>
+        }
+        {(!compareMode || compareMode === 'Summary') &&
+          <div>
+            {filterCategoryLevels.length > 0 && 
+            <div className="sm-Overview-summary">
+                <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
+                  filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
+                  groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels} />
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
   );
@@ -410,8 +413,8 @@ function wrap(text, width) {
 // }
 
 function hashCode(str) {
-    return str.slice(0,Math.floor(str.length/3)).split(',').reduce((prevHash, currVal) =>
-        (((prevHash << 5) - prevHash) + currVal.charCodeAt(0)) | 0, 0);
+  return str.slice(0,Math.floor(str.length/3)).split(',').reduce((prevHash, currVal) =>
+    (((prevHash << 5) - prevHash) + currVal.charCodeAt(0)) | 0, 0);
 }
 
 Overview.propTypes = {

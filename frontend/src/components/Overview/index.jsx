@@ -34,7 +34,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
   const [toRemove, setToRemove] = useState('');
 
   useEffect(() => {
-    if (compareMode === 'Overview') {
+    if (compareMode === 'Overview' || !compareMode) {
       renderAnimatedChart(yAxisLevels, filterCategoryLevels, range);
     }
   }, [compareMode]);
@@ -209,7 +209,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
     let innerToRemove;
 
     const mouseclick = function (event) {
-      if (compareMode) { return; }
+      if (compareMode !== null) { return; }
       setElementData(event.srcElement.__data__);
       if (innerToRemove) {
         d3.select("#" + innerToRemove).attr("r", radius);
@@ -349,25 +349,15 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
         </div>
       }
       <div className="sm-Overview-rightPane">
-        {!compareMode &&
-          <>
-            {elementData &&
-              <div className="sm-Overview-details">
-                <DetailedView data={elementData} xAxisAttr={xAxisAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
-              </div>
-            }
-          </>
+        {!compareMode && elementData &&
+          <div className="sm-Overview-details">
+            <DetailedView data={elementData} xAxisAttr={xAxisAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
+          </div>
         }
         {(!compareMode || compareMode === 'Summary') &&
-          <div>
-            {filterCategoryLevels.length > 0 && 
-            <div className="sm-Overview-summary">
-                <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
-                  filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
-                  groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels} />
-              </div>
-            }
-          </div>
+            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
+              filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
+              groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels} />
         }
       </div>
     </div>

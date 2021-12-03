@@ -154,7 +154,7 @@ function SummaryView({
     <div className="sm-SummaryView">
       <div id={chartId.replace('#', '')} className="sm-SummaryView-chart">
         <span className="sm-Overview-legendLabel">{groupAttr}</span>
-        {groupAttr && 
+        {filterCategoryLevels.length > 0 && 
           <div className="sm-SummaryView-legends" style={{ width }}>
             {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
               <div key={category.value} className="sm-SummaryView-legend">

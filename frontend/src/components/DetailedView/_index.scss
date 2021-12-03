@@ -1,13 +1,18 @@
 .sm-DetailedView {
-    margin: 0 0 0 10px;
+    margin: 0 0 0 20px;
     position: relative;
-    padding: 8px;
+    padding: 6px;
     border-radius: 4px;
     display: flex;
+    max-width: 580px;
 
     &-metadata {
-        margin: 10px 0 0 20px;
+        margin: 15px 0 0 20px;
         font-size: 14px;
+
+        strong {
+            font-weight: 500;
+        }
     }
 
     &-spectrogram {

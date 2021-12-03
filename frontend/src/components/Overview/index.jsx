@@ -404,14 +404,6 @@ function wrap(text, width) {
 }
 
 
-// function formatCircleLabel(text) {
-//   if (text.length > 10) {
-//     const textElements = text.split(' ');
-//     return textElements.map(e => e[0] + '.').join('');
-//   }
-//   return text;
-// }
-
 function hashCode(str) {
   return str.slice(0,Math.floor(str.length/3)).split(',').reduce((prevHash, currVal) =>
     (((prevHash << 5) - prevHash) + currVal.charCodeAt(0)) | 0, 0);

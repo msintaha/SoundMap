@@ -20,5 +20,4 @@ const SkeletonLoader = props => (
   </ContentLoader>
 );
 
-
 export default SkeletonLoader;

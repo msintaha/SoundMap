@@ -12,7 +12,7 @@ import SummaryView from '../SummaryView';
 import DetailedView from '../DetailedView';
 
 
-function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, compareMode }) {
+function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, compareMode, onRemoveView, shouldShowRemoveView }) {
   const chartId = `#beeswarm-${viewIndex}`;
   const width = 695, radius = 3.2, padding = 1.2;
   const margin = {
@@ -275,6 +275,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
 
   return (
     <div className="sm-Overview">
+      {shouldShowRemoveView && <IconButton size="medium" className="sm-Overview-close" onClick={() => onRemoveView(viewIndex)}><CloseOutlined fontSize="inherit" /></IconButton>}
       {!compareMode &&
         <div className="sm-Overview-filterpanel" style={{width: panelWidth}}>
           <h6>&nbsp;Filter Panel</h6>

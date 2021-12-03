@@ -6,6 +6,13 @@
     border-radius: 4px;
     display: flex;
 
+    &-close {
+        position: absolute !important;
+        right: 2px;
+        font-size: 26px;
+        top: 0;
+    }
+
     &-filterpanel {
         height: 100%; /* 100% Full-height */
         width: 0; /* 0 width - change this with JavaScript */

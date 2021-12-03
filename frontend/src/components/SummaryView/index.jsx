@@ -17,8 +17,8 @@ function SummaryView({
 }) {
   const chartId = `#barchart-${viewIndex}`;
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
-  const margin = {top: 20, right: 95, bottom: 10, left: 100},
-      width = 800 - margin.left - margin.right;
+  const margin = {top: 20, right: 75, bottom: 10, left: 100},
+      width = 770 - margin.left - margin.right;
 
   useEffect(() => {
     const newRange = getRangeWithValues(yAxisAttr, data);

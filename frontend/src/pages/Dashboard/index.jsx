@@ -158,6 +158,8 @@ function Dashboard() {
                 defaultQuantitativeAttr={view.quantitative}
                 viewIndex={idx}
                 attributeTypes={attributeTypes}
+                shouldShowRemoveView={viewsList.length > 1}
+                onRemoveView={(idx) => setViewsList(viewsList.filter((_, i) => i !== idx))}
                 data={data}
               />)}
             <div ref={viewEnd} />

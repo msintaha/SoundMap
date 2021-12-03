@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import Overview from '../../components/Overview';
 import Header from '../../components/Header';
@@ -10,6 +10,7 @@ import UploadIcon from '@mui/icons-material/UploadFileOutlined';
 
 
 function Dashboard() {
+  let viewEnd = useRef(null);
   const [attributeTypes, setAttributeTypes] = useState({
     ordinal: [],
     quantitative: [],
@@ -22,6 +23,12 @@ function Dashboard() {
   const [isLoading, setLoading] = useState(false);
   const [viewsList, setViewsList] = useState([]);
   const [comparisonView, setComparisonView] = useState(null);
+
+  useEffect(() => {
+    if (viewsList.length > 1) {
+      scrollToBottom();
+    }
+  }, [viewsList]);
 
   const onFileUpload = (event) => {
     onCancel();
@@ -70,6 +77,10 @@ function Dashboard() {
       quantitative: [],
       listical: []
     });
+  }
+
+  function scrollToBottom() {
+    viewEnd.current.scrollIntoView({ behavior: 'smooth' });
   }
 
   function onAddView(quantitativeAttr) {
@@ -138,8 +149,19 @@ function Dashboard() {
         </Fade>
       </Modal>
       <div className={comparisonView ? 'sm-Dashboard-bodyGrid' : 'sm-Dashboard-body'}>
-        {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed ?
-          viewsList.map((view, idx) => <Overview key={`${view}:${idx}`} compareMode={comparisonView} defaultQuantitativeAttr={view.quantitative} viewIndex={idx} attributeTypes={attributeTypes} data={data} />) : null
+        {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed &&
+          <div>
+            {viewsList.map((view, idx) => 
+              <Overview
+                key={`${view}:${idx}`}
+                compareMode={comparisonView}
+                defaultQuantitativeAttr={view.quantitative}
+                viewIndex={idx}
+                attributeTypes={attributeTypes}
+                data={data}
+              />)}
+            <div ref={viewEnd} />
+          </div>
         }
         {!data.length && !isLoading &&
           <div className="sm-Dashboard-empty">

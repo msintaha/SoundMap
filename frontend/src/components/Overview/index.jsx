@@ -33,6 +33,11 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
   const [elementData, setElementData] = useState('');
   const [toRemove, setToRemove] = useState('');
 
+  useEffect(() => {
+    if (compareMode === 'Overview') {
+      renderAnimatedChart(yAxisLevels, filterCategoryLevels, range);
+    }
+  }, [compareMode]);
 
   useEffect(() => {
     const newYAxisLvl = toCheckboxObject(getCategoryLevels(yAxisAttr, data));
@@ -329,17 +334,17 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       {(!compareMode || compareMode === 'Overview') &&
         <div id={chartId.replace('#', '')}>
           {filterCategoryLevels.length > 0 && 
-          <div>
-            <span className="sm-Overview-legendLabel">{categoryToFilterBy}</span>
-            <div className="sm-Overview-legends" style={{ width }}>
-              {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
-                <div key={category.value} className="sm-Overview-legend">
-                  <span className="sm-Overview-legendColor" style={{ color: getRecycledColors(colorCategoryLevels.length)[index] }}>&#9679;</span>
-                  {category.value}
-                </div>
-              )}
+            <div>
+              <span className="sm-Overview-legendLabel">{categoryToFilterBy}</span>
+              <div className="sm-Overview-legends" style={{ width }}>
+                {filterCategoryLevels.filter(f => f.checked).map((category, index) =>
+                  <div key={category.value} className="sm-Overview-legend">
+                    <span className="sm-Overview-legendColor" style={{ color: getRecycledColors(colorCategoryLevels.length)[index] }}>&#9679;</span>
+                    {category.value}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           }
         </div>
       }

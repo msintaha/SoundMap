@@ -7,11 +7,12 @@ import io
 import librosa
 import librosa.display
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
+matplotlib.use('Agg')
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -20,26 +21,12 @@ if __name__ == '__main__':
     server = Server(app.wsgi_app)
     server.serve()
 
-incomes = [
-  { 'description': 'salary', 'amount': 5000 }
-]
-
-
 
 @app.route('/api/generate-spectrogram', methods=['POST'])
 @cross_origin()
 def generate_spectrogram():
     request_body = request.get_json()
     print('Data', request_body)
-
-  #filename = 'emoji.png' # Sample image in the src/ folder. This can be the dynamic image generated from librosa
-  #image_file = open(os.path.join(dir_path, filename), "rb")
-  #encoded_string = base64.b64encode(image_file.read())
-
-    #request_body - the waveform
-    #scale - eg. linear, log, cqt_note, cqt_hz (constant q transform)
-    #sr - the sample rate
-
     # set sr for now
     w = np.array(request_body["sound_data"])
     sr = request_body["sample_rate"]
@@ -63,15 +50,4 @@ def generate_spectrogram():
 
 @app.route('/')
 def get():
-  return 'Hello World'
-
-@app.route('/api')
-@cross_origin()
-def get_incomes():
-  return jsonify(incomes)
-
-
-@app.route('/api/incomes', methods=['POST'])
-def add_income():
-  incomes.append(request.get_json())
-  return '', 204
+	return 'Hello World'

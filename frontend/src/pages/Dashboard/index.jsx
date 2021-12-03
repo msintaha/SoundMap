@@ -62,6 +62,7 @@ function Dashboard() {
     setIsConfirmed(true);
     setOpen(false);
     setViewsList([{
+      id: uuidv4(),
       ordinal: attributeTypes.ordinal[0],
       quantitative: attributeTypes.quantitative[0],
       filterBy: attributeTypes.ordinal[1]
@@ -85,6 +86,7 @@ function Dashboard() {
 
   function onAddView(quantitativeAttr) {
     setViewsList([...viewsList, {
+      id: uuidv4(),
       ordinal: attributeTypes.ordinal[0],
       quantitative: quantitativeAttr,
       filterBy: attributeTypes.ordinal[1]
@@ -151,15 +153,15 @@ function Dashboard() {
       <div className={comparisonView ? 'sm-Dashboard-bodyGrid' : 'sm-Dashboard-body'}>
         {(!!data.length && Object.values(attributeTypes).find(v => v.length >= 1)) && isConfirmed &&
           <>
-            {viewsList.map((view, idx) => 
+            {viewsList.map(view => 
               <Overview
-                key={`${view}:${idx}`}
+                key={view.id}
                 compareMode={comparisonView}
                 defaultQuantitativeAttr={view.quantitative}
-                viewIndex={idx}
+                viewId={view.id}
                 attributeTypes={attributeTypes}
                 shouldShowRemoveView={viewsList.length > 1}
-                onRemoveView={(idx) => setViewsList(viewsList.filter((_, i) => i !== idx))}
+                onRemoveView={(id) => setViewsList(viewsList.filter(view => view.id !== id))}
                 data={data}
               />)}
             <div ref={viewEnd} />
@@ -176,6 +178,8 @@ function Dashboard() {
   );
 }
 
-
+function uuidv4() {
+  return Math.floor(Math.random()*90000) + 10000;
+}
 
 export default Dashboard;

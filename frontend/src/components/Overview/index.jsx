@@ -12,8 +12,8 @@ import SummaryView from '../SummaryView';
 import DetailedView from '../DetailedView';
 
 
-function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, compareMode, onRemoveView, shouldShowRemoveView }) {
-  const chartId = `#beeswarm-${viewIndex}`;
+function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compareMode, onRemoveView, shouldShowRemoveView }) {
+  const chartId = `#beeswarm-${viewId}`;
   const width = 695, radius = 3.2, padding = 1.2;
   const margin = {
     left: 70,
@@ -200,8 +200,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
       Tooltip
         .html(`<strong>${xAxisAttr}</strong>: ${data[xAxisAttr]}` + `<br /><strong>${yAxisAttr}</strong>: ${data[yAxisAttr]}`
           + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[colorCategory]}` : ''))
-        .style("left", `${event.pageX - 30}` + "px")
-        .style("top", `${event.pageY - 48}` + "px")
+        .style("left", `${event.x - 30}` + "px")
+        .style("top", `${event.y - 48}` + "px")
     };
 
     const mouseleave = function(event) {
@@ -275,7 +275,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
 
   return (
     <div className="sm-Overview">
-      {shouldShowRemoveView && <IconButton size="medium" className="sm-Overview-close" onClick={() => onRemoveView(viewIndex)}><CloseOutlined fontSize="inherit" /></IconButton>}
+      {shouldShowRemoveView && <IconButton size="medium" className="sm-Overview-close" onClick={() => onRemoveView(viewId)}><CloseOutlined fontSize="inherit" /></IconButton>}
       {!compareMode &&
         <div className="sm-Overview-filterpanel" style={{width: panelWidth}}>
           <h6>&nbsp;Filter Panel</h6>
@@ -364,7 +364,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewIndex, co
           </div>
         }
         {(!compareMode || compareMode === 'Summary') &&
-            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewIndex={viewIndex}
+            <SummaryView attributeTypes={attributeTypes} data={data} colorPalette={COLORS} viewId={viewId}
               filterCategoryLevels={filterCategoryLevels} xAxisAttr={yAxisAttr} xAxisLevels={yAxisLevels} 
               groupAttr={categoryToFilterBy} yAxisAttr={xAxisAttr} filterCategoryLevels={filterCategoryLevels} />
         }

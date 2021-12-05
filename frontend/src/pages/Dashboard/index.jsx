@@ -62,7 +62,7 @@ function Dashboard() {
     setIsConfirmed(true);
     setOpen(false);
     setViewsList([{
-      id: uuidv4(),
+      id: generateId(),
       ordinal: attributeTypes.ordinal[0],
       quantitative: attributeTypes.quantitative[0],
       filterBy: attributeTypes.ordinal[1]
@@ -86,7 +86,7 @@ function Dashboard() {
 
   function onAddView(quantitativeAttr) {
     setViewsList([...viewsList, {
-      id: uuidv4(),
+      id: generateId(),
       ordinal: attributeTypes.ordinal[0],
       quantitative: quantitativeAttr,
       filterBy: attributeTypes.ordinal[1]
@@ -178,7 +178,7 @@ function Dashboard() {
   );
 }
 
-function uuidv4() {
+function generateId() {
   return Math.floor(Math.random()*90000) + 10000;
 }
 

@@ -219,7 +219,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     const mouseclick = function (event) {
       if (compareMode !== null) { return; }
       setElementData(event.srcElement.__data__);
-      if (innerToRemove) {
+        if (innerToRemove) {
+            console.log("to remove", innerToRemove);
         d3.select("#" + innerToRemove).attr("r", radius);
       }
       if (toRemove !== '') {
@@ -248,8 +249,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
       .on('mouseleave', mouseleave)
       .on('click', mouseclick);
     
-    // assign ids to circles
-    svg.selectAll("circle").attr("id", function (d) { return "c" + String(hashCode(d[fileDataAttr])); });
+      // assign ids to circles
+      svg.selectAll("circle").attr("id", function (d) { return "c" + String(viewId) + String(hashString(d[fileDataAttr])); });
     
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
@@ -407,10 +408,20 @@ function wrap(text, width) {
   });
 }
 
+String.prototype.hashCode = function () {
+    var hash = 0, i, chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) {
+        chr = this.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+};
 
-function hashCode(str) {
-  return str.slice(0,Math.floor(str.length/3)).split(',').reduce((prevHash, currVal) =>
-    (((prevHash << 5) - prevHash) + currVal.charCodeAt(0)) | 0, 0);
+function hashString(str) {
+    var shorter_str = str.slice(0, Math.floor(str.length / 3))
+    return shorter_str.hashCode()
 }
 
 Overview.propTypes = {

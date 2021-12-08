@@ -219,8 +219,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     const mouseclick = function (event) {
       if (compareMode !== null) { return; }
       setElementData(event.srcElement.__data__);
-        if (innerToRemove) {
-            console.log("to remove", innerToRemove);
+      if (innerToRemove) {
         d3.select("#" + innerToRemove).attr("r", radius);
       }
       if (toRemove !== '') {
@@ -249,8 +248,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
       .on('mouseleave', mouseleave)
       .on('click', mouseclick);
     
-      // assign ids to circles
-      svg.selectAll("circle").attr("id", function (d) { return "c" + String(viewId) + String(hashString(d[fileDataAttr])); });
+    // assign ids to circles
+    svg.selectAll("circle").attr("id", function (d) { return "c" + String(viewId) + String(hashString(d[fileDataAttr])); });
     
     for (let i = 0; i < (data.length / 2); i++) {
       simulation.tick();
@@ -378,50 +377,50 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
 function wrap(text, width) {
   text.each(function () {
     let text = d3.select(this),
-        words = text.text().split(/\s+/).reverse(),
-        word,
-        line = [],
-        lineNumber = 0,
-        lineHeight = 1, // ems
-        x = text.attr("x"),
-        y = text.attr("y"),
-        dy = 0, //parseFloat(text.attr("dy")),
-        tspan = text.text(null)
-                  .append("tspan")
-                  .attr("x", x)
-                  .attr("y", y)
-                  .attr("dy", dy + "em");
+      words = text.text().split(/\s+/).reverse(),
+      word,
+      line = [],
+      lineNumber = 0,
+      lineHeight = 1,
+      x = text.attr("x"),
+      y = text.attr("y"),
+      dy = 0,
+      tspan = text.text(null)
+                .append("tspan")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", dy + "em");
     while (word = words.pop()) {
-        line.push(word);
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
         tspan.text(line.join(" "));
-        if (tspan.node().getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text.append("tspan")
-                        .attr("x", x)
-                        .attr("y", y)
-                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                        .text(word);
-        }
+        line = [word];
+        tspan = text.append("tspan")
+                    .attr("x", x)
+                    .attr("y", y)
+                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                    .text(word);
+      }
     }
   });
 }
 
 String.prototype.hashCode = function () {
-    var hash = 0, i, chr;
-    if (this.length === 0) return hash;
-    for (i = 0; i < this.length; i++) {
-        chr = this.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
+  let hash = 0, i, chr;
+  if (this.length === 0) return hash;
+  for (i = 0; i < this.length; i++) {
+      chr = this.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
 };
 
 function hashString(str) {
-    var shorter_str = str.slice(0, Math.floor(str.length / 3))
-    return shorter_str.hashCode()
+  const shorter_str = str.slice(0, Math.floor(str.length / 3));
+  return shorter_str.hashCode();
 }
 
 Overview.propTypes = {

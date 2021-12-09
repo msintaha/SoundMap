@@ -8,4 +8,8 @@ export default class Service {
   static generateSpectrogram(data) {
     return http.post('/generate-spectrogram', data).then(response => response.data);
   }
+
+  static generateWaveplot(data) {
+    return http.post('/generate-waveplot', data).then(response => response.data);
+  }
 }

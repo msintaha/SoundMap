@@ -3,31 +3,50 @@ import PropTypes from 'prop-types';
 import './_index.scss';
 import Service from '../../services/Service';
 import SkeletonLoader from '../SkeletonLoader';
+import { Box, Tabs, Tab } from '@mui/material';
 
 function DetailedView({ data, fileDataAttr, sampleRateAttr, xAxisAttr, categoryToFilterBy, yAxisAttr}) {
-	const [image, setImage] = useState('');
+	const [spectrogram, setSpectrogram] = useState('');
+	const [waveplot, setWaveplot] = useState('');
+	const [tabIndex, setTabIndex] = useState(0);
 	const [isLoading, setLoading] = useState(false);
 
 	useEffect(() => {
 		setLoading(true);
 		const soundData = data[fileDataAttr].split(',').map(Number);
 		const sampleRate = Number(data[sampleRateAttr]);
-		Service.generateSpectrogram({ sound_data: soundData, sample_rate: sampleRate }).then(res => {
-			setImage(res);
+		Promise.all([
+			Service.generateSpectrogram({ sound_data: soundData, sample_rate: sampleRate }),
+			Service.generateWaveplot({ sound_data: soundData, sample_rate: sampleRate })
+		]).then(([_spectrogram, _waveplot]) => {
+			setSpectrogram(_spectrogram);
+			setWaveplot(_waveplot);
 			setLoading(false);
-		});
+		})
 	}, [data]);
 
   return isLoading ? <SkeletonLoader /> : (
     <div className="sm-DetailedView">
-			<img src={image} className="sm-DetailedView-spectrogram" />
-			<div className="sm-DetailedView-metadata">
-				<h6>Details</h6>
-				<hr />
-				<div><strong>{yAxisAttr}:</strong> {data[yAxisAttr]}</div>
-				<div><strong>{xAxisAttr}:</strong> {parseFloat(data[xAxisAttr]).toFixed(2)}</div>
-				<div><strong>{categoryToFilterBy}:</strong> {data[categoryToFilterBy]}</div>
+		<div className="sm-DetailedView-chart">
+			<Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+				<Tabs value={tabIndex} onChange={(e, _tabIndex) => setTabIndex(_tabIndex)}>
+					<Tab label="Spectrogram" />
+					<Tab label="Waveplot" />
+				</Tabs>
+			</Box>
+			{tabIndex === 0 &&
+				<img src={spectrogram} className="sm-DetailedView-spectrogram" />
+			}
+			{tabIndex === 1 &&
+				<img src={waveplot} className="sm-DetailedView-waveplot" />
+			}
 			</div>
+		<div className="sm-DetailedView-metadata">
+			<h6 className="sm-DetailedView-heading">DETAILS</h6>
+			<div><strong>{yAxisAttr}:</strong> {data[yAxisAttr]}</div>
+			<div><strong>{xAxisAttr}:</strong> {parseFloat(data[xAxisAttr]).toFixed(2)}</div>
+			<div><strong>{categoryToFilterBy}:</strong> {data[categoryToFilterBy]}</div>
+		</div>
     </div>
   );
 }

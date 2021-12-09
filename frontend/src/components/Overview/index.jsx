@@ -342,6 +342,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
       {!compareMode && <IconButton className="sm-Overview-filter" onClick={() => setPanelWidth(230)}><FilterAltIcon /></IconButton>}
       {(!compareMode || compareMode === 'Overview') &&
         <div id={chartId.replace('#', '')}>
+          <h6 className="sm-Overview-heading">OVERVIEW</h6>
           {filterCategoryLevels.length > 0 && 
             <div>
               <span className="sm-Overview-legendLabel">{categoryToFilterBy}</span>

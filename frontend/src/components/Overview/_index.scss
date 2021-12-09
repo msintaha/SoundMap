@@ -13,6 +13,18 @@
         top: 0;
     }
 
+    &-heading {
+        background: -webkit-linear-gradient(#0065FF, #FF6666);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 2px;
+        padding-bottom: 4px;
+    }
+
     &-filterpanel {
         height: 100%; /* 100% Full-height */
         width: 0; /* 0 width - change this with JavaScript */

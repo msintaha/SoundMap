@@ -153,6 +153,7 @@ function SummaryView({
   return (
     <div className="sm-SummaryView">
       <div id={chartId.replace('#', '')} className="sm-SummaryView-chart">
+        <h6 className="sm-SummaryView-heading">SUMMARY</h6>
         <span className="sm-Overview-legendLabel">{groupAttr}</span>
         {filterCategoryLevels.length > 0 && 
           <div className="sm-SummaryView-legends" style={{ width }}>

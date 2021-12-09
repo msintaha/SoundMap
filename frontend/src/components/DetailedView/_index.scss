@@ -1,5 +1,5 @@
 .sm-DetailedView {
-    margin: 0 0 0 20px;
+    margin: -14px 0 0 20px;
     position: relative;
     padding: 6px;
     border-radius: 4px;
@@ -15,7 +15,41 @@
         }
     }
 
-    &-spectrogram {
-        max-width: 300px;
+    &-spectrogram, &-waveplot {
+        max-width: 320px;
+    }
+
+    .MuiButtonBase-root:focus {
+        outline: none !important;
+    }
+
+    .MuiTabs-flexContainer {
+        height: 0 !important;
+    }
+
+    .MuiTab-root {
+        height: 34px !important;
+    }
+
+    .MuiTabs-root {
+        min-height: 38px !important;
+        margin-top: -2px !important;
+    }
+
+    .MuiButtonBase-root {
+        font-size: 12px !important;
+        padding: 4px !important;
+    }
+
+    &-heading {
+        background: -webkit-linear-gradient(#0065FF, #FF6666);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 14px;
+        font-weight: 700;
+        text-align: center;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 2px;
+        padding-bottom: 4px;
     }
 }

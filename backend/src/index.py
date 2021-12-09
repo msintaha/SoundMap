@@ -46,7 +46,7 @@ def generate_spectrogram():
     pic_IObytes.seek(0)
     encoded_string = base64.b64encode(pic_IObytes.read())
     
-    return "data:image/jpg;base64," + encoded_string.decode('utf-8')
+    return "data:image/png;base64," + encoded_string.decode('utf-8')
 
 @app.route('/api/generate-waveplot', methods=['POST'])
 @cross_origin()
@@ -69,7 +69,7 @@ def generate_waveplot():
     pic_IObytes.seek(0)
     encoded_string = base64.b64encode(pic_IObytes.read())
 
-    return "data:image/jpg;base64," + encoded_string.decode('utf-8')
+    return "data:image/png;base64," + encoded_string.decode('utf-8')
 
 @app.route('/')
 def get():

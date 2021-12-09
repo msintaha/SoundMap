@@ -15,10 +15,19 @@ function SummaryView({
   filterCategoryLevels,
   viewId,
 }) {
+  const isSparse = data.length < 100;
+  // same computation as in Overview * 1/3
+  let height = 500;
+  if (xAxisLevels.length >= 4 && !isSparse) {
+    height = (xAxisLevels.length * height) / 3;
+  } else if (xAxisLevels.length >= 4 && isSparse) {
+    height = 700;
+  }
+  
+  const minWidth = 700;
+  const width = filterCategoryLevels.length*60 > minWidth ? filterCategoryLevels.length*60 : minWidth;
   const chartId = `#barchart-${viewId}`;
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
-  const margin = {top: 20, right: 75, bottom: 10, left: 100},
-      width = 770 - margin.left - margin.right;
 
   useEffect(() => {
     const newRange = getRangeWithValues(yAxisAttr, data);
@@ -50,7 +59,6 @@ function SummaryView({
       label: yAxisAttr,
       type: d3.scaleLinear,
       domain: xAxisLevels.filter(x => x.checked).map(x => x.value),
-      width,
       showScale: 1,
       yLabel: yAxisAttr,
       colorCategory: groupAttr,
@@ -65,11 +73,9 @@ function SummaryView({
     domain, // convenience alias for xDomain
     x = value, // given d in data, returns the quantitative x value
     marginTop = 50, // top margin, in pixels
-    marginRight = 50, // right margin, in pixels
-    marginBottom = 50, // bottom margin, in pixels
-    marginLeft = 50, // left margin, in pixels
-    width = 400, // outer width, in pixels
-    height = 400, // outer height, in pixels
+    marginRight = 0, // right margin, in pixels
+    marginBottom = 150, // bottom margin, in pixels
+    marginLeft = 0, // left margin, in pixels
     yDomain,
     colorCategory,
     colorCategoryLevels,
@@ -116,13 +122,19 @@ function SummaryView({
         .attr('transform', function(d, i) { return 'translate(' + x(i) + ',0)'; })
 
       .selectAll('rect')
-      .data(function(d) { return colorCategoryLevels.map(function(key) { return {key: key, value: d.subgroups.find(v => v.name == key)} }); })
+      .data(function(d) { return getBarData(d); })
       .enter().append('rect')
         .attr('x', function(d) { return xSubgroup(d.key); })
         .attr('y', function(d) { return y(d.value.avg); })
-        .attr('width', xSubgroup.bandwidth())
+        .attr('width', xSubgroup.bandwidth() < 5 ? 5 : xSubgroup.bandwidth())
         .attr('height', function(d) { return y(0) - y(d.value.avg); })
         .attr('fill', function(d) { return color(d.key); });
+
+    function getBarData(d) {
+      var barData = colorCategoryLevels.map(function(key) { return { key: key, value: d.subgroups.find(v => v.name == key) } });
+      var filteredBarData = barData.filter(v => !(v.value === undefined));
+      return filteredBarData;
+    }
 
     function xAxis(g) {
       g.attr('transform', `translate(0, ${height - marginBottom})`)
@@ -137,7 +149,12 @@ function SummaryView({
     }
 
     svg.append('g').call(yAxis);
-    svg.append('g').call(xAxis);
+    svg.append('g').call(xAxis)
+      .selectAll("text")  
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-65)");
 
     svg.append('text')
       .attr('class', 'y label')

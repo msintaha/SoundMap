@@ -73,9 +73,9 @@ function SummaryView({
     domain, // convenience alias for xDomain
     x = value, // given d in data, returns the quantitative x value
     marginTop = 50, // top margin, in pixels
-    marginRight = 0, // right margin, in pixels
+    marginRight = 50, // right margin, in pixels
     marginBottom = 150, // bottom margin, in pixels
-    marginLeft = 0, // left margin, in pixels
+    marginLeft = 50, // left margin, in pixels
     yDomain,
     colorCategory,
     colorCategoryLevels,
@@ -114,6 +114,16 @@ function SummaryView({
         .range(_.clone(colorPalette).slice(0, colorCategoryLevels.length));
     }
 
+    // iterate backwards removing averages that are NaN
+    data.forEach(element => {
+      var i = element.subgroups.length;
+        while (i--) {
+          if (isNaN(element.subgroups[i].avg)) { 
+            element.subgroups.splice(i, 1);
+          } 
+        }
+    });
+
     svg.append('g')
       .selectAll('g')
       .data(data)
@@ -124,15 +134,15 @@ function SummaryView({
       .selectAll('rect')
       .data(function(d) { return getBarData(d); })
       .enter().append('rect')
-        .attr('x', function(d) { return xSubgroup(d.key); })
-        .attr('y', function(d) { return y(d.value.avg); })
+        .attr('x', function(d, i) { return xSubgroup(d.name); })
+        .attr('y', function(d) { return y(d.avg); })
         .attr('width', xSubgroup.bandwidth() < 5 ? 5 : xSubgroup.bandwidth())
-        .attr('height', function(d) { return y(0) - y(d.value.avg); })
-        .attr('fill', function(d) { return color(d.key); });
+        .attr('height', function(d) { return y(0) - y(d.avg); })
+        .attr('fill', function(d) { return color(d.name); })
 
     function getBarData(d) {
-      var barData = colorCategoryLevels.map(function(key) { return { key: key, value: d.subgroups.find(v => v.name == key) } });
-      var filteredBarData = barData.filter(v => !(v.value === undefined));
+      var barData = colorCategoryLevels.map(function(key) { return d.subgroups.find(v => v.name == key) });
+      var filteredBarData = barData.filter(v => !(isNaN(v.avg)));
       return filteredBarData;
     }
 

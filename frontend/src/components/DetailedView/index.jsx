@@ -40,12 +40,13 @@ function DetailedView({ data, fileDataAttr, sampleRateAttr, xAxisAttr, categoryT
 			{tabIndex === 1 &&
 				<img src={waveplot} className="sm-DetailedView-waveplot" />
 			}
-			</div>
-		<div className="sm-DetailedView-metadata">
+		</div>
+		<div className="sm-DetailedView-container">
 			<h6 className="sm-DetailedView-heading">DETAILS</h6>
-			<div><strong>{yAxisAttr}:</strong> {data[yAxisAttr]}</div>
-			<div><strong>{xAxisAttr}:</strong> {parseFloat(data[xAxisAttr]).toFixed(2)}</div>
-			<div><strong>{categoryToFilterBy}:</strong> {data[categoryToFilterBy]}</div>
+			<div className="sm-DetailedView-metadata">
+				{Object.entries(data).filter(([k, v]) => !['x', 'y', 'vy', 'vx'].includes(k))
+					.map(([key, value]) => <div><strong>{key}:</strong> {isNaN(parseFloat(value)) ? value : parseFloat(value).toFixed(2)}</div>)}
+			</div>
 		</div>
     </div>
   );

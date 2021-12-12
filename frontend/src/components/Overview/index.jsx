@@ -357,7 +357,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
         </div>
       }
       <div className="sm-Overview-rightPane">
-        {!compareMode && elementData &&
+        {(!compareMode || compareMode === 'Details') && elementData &&
           <div className="sm-Overview-details">
             <DetailedView data={elementData} xAxisAttr={xAxisAttr} fileDataAttr={fileDataAttr} sampleRateAttr={sampleRateAttr} categoryToFilterBy={categoryToFilterBy} yAxisAttr={yAxisAttr} />
           </div>

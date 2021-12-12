@@ -25,7 +25,7 @@ function SummaryView({
   }
   
   const minWidth = 700;
-  const width = filterCategoryLevels.length*60 > minWidth ? filterCategoryLevels.length*60 : minWidth;
+  const width = filterCategoryLevels.length*20 > minWidth ? filterCategoryLevels.length*20 : minWidth;
   const chartId = `#barchart-${viewId}`;
   const [range, setRange] = useState(getRangeWithValues(yAxisAttr, data))
 
@@ -81,10 +81,30 @@ function SummaryView({
     colorCategoryLevels,
     colorPalette
   } = {}) {
+    
+    var largestSubgroup = 1;
+    var subgroupDomain = []
+    data.forEach(element => {
+      var i = element.subgroups.length;
+      var subgroupSize= 0;
+      while (i--) {
+        if (isNaN(element.subgroups[i].avg)) { 
+          continue;
+        } 
+        subgroupSize++;
+      }
+      if (subgroupSize > largestSubgroup) {
+        largestSubgroup = subgroupSize;
+      }
+    });
+
+    for (var i = 0; i < largestSubgroup; i++) {
+      subgroupDomain.push(i);
+    }
 
     const svg = d3.select(chartId)
         .append('svg')
-        .attr('width', width - marginLeft - marginRight)
+        .attr('width', width - marginRight- marginLeft)
         .attr('height', height - marginTop - marginBottom)
         .attr('viewBox', [0, 0, width, height])
 
@@ -102,8 +122,8 @@ function SummaryView({
       .range([height - marginBottom, marginTop]);
 
     // Another scale for subgroup position
-      var xSubgroup = d3.scaleBand()
-      .domain(colorCategoryLevels)
+    var xSubgroup = d3.scaleBand()
+      .domain(subgroupDomain)
       .range([0, x.bandwidth()])
       .padding([0.05])
 
@@ -134,7 +154,7 @@ function SummaryView({
       .selectAll('rect')
       .data(function(d) { return getBarData(d); })
       .enter().append('rect')
-        .attr('x', function(d, i) { return xSubgroup(d.name); })
+        .attr('x', function(d, i) { return xSubgroup(i); })
         .attr('y', function(d) { return y(d.avg); })
         .attr('width', xSubgroup.bandwidth() < 5 ? 5 : xSubgroup.bandwidth())
         .attr('height', function(d) { return y(0) - y(d.avg); })
@@ -142,7 +162,7 @@ function SummaryView({
 
     function getBarData(d) {
       var barData = colorCategoryLevels.map(function(key) { return d.subgroups.find(v => v.name == key) });
-      var filteredBarData = barData.filter(v => !(isNaN(v.avg)));
+      var filteredBarData = barData.filter(v => !(v === undefined));
       return filteredBarData;
     }
 
@@ -164,7 +184,7 @@ function SummaryView({
       .style("text-anchor", "end")
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
-      .attr("transform", "rotate(-65)");
+      .attr("transform", "rotate(-70)");
 
     svg.append('text')
       .attr('class', 'y label')

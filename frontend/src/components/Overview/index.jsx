@@ -15,13 +15,13 @@ import DetailedView from '../DetailedView';
 function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compareMode, onRemoveView, shouldShowRemoveView }) {
   const chartId = `#beeswarm-${viewId}`;
   const width = 695, radius = 3.2, padding = 1.2;
+  const isSparse = data.length < 100;
   const margin = {
-    left: 70,
+    left: isSparse ? 100 : 70,
     right: 30,
     top: 60,
     bottom: 30
   };
-  const isSparse = data.length < 100;
   let sampleRateAttr, fileDataAttr;
   attributeTypes.listical.forEach(attr => {
     if (data[0][attr].includes(',')) {
@@ -116,7 +116,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     if (yAxisLevels.length >= 4 && !isSparse) {
       height = (yAxisLevels.length * (height - (xAxisAttr.endsWith('max') || xAxisAttr.endsWith('min') ? 0 : margin.top))) / 3;
     } else if (yAxisLevels.length >= 4 && isSparse) {
-      height = 900;
+      height = 638;
     }
 
     const x = d3.scaleLinear()
@@ -127,7 +127,6 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     const xAxis = g => g
       .attr('transform', `translate(0,${height - margin.top})`)
       .call(d3.axisBottom(x));
-    
 
     const color = d3.scaleOrdinal()
       .domain(colorCategoryLevels)
@@ -135,8 +134,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
 
     const y = d3.scaleBand()
       .domain(yAxisLevels)
-      .range([isSparse ? 850 : height + margin.bottom, isSparse ? margin.top - 20 : margin.top])
-
+      .range([isSparse ? 600 : height + margin.bottom, isSparse ? margin.top - 20 : margin.top])
 
     const svg = d3.select(chartId).append('svg')
       .attr('width', width)
@@ -181,8 +179,8 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
       .attr('alignment-baseline', 'middle')
       .attr('transform', 'translate(0, -10)')
       .text(d => d)
-      .call(wrap, 75);
-    
+      .call(wrap, isSparse ? 120 : 75);
+
     const Tooltip = d3.select(chartId)
       .append("div")
       .attr("class", 'popover');
@@ -210,7 +208,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
       d3.select(this)
         .style('stroke', 'none')
         .style('opacity', 0.8)
-      };
+    };
 
     // innerToRemove - can't use toRemove because it has a state and won't update here 
     // unless the whole page is rendered again

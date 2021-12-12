@@ -6,9 +6,16 @@
     display: flex;
     max-width: 580px;
 
-    &-metadata {
+    &-container {
         margin: 15px 0 0 20px;
-        font-size: 14px;
+    }
+
+    &-metadata {
+        font-size: 13px;
+        overflow: auto;
+        padding: 4px 0;
+        max-height: 220px;
+        width: 307px;
 
         strong {
             font-weight: 500;

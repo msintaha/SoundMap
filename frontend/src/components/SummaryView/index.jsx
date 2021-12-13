@@ -58,6 +58,9 @@ function SummaryView({
     var maxAvg = 0;
     avgData.forEach(d => d.subgroups.forEach(s => { if (s.avg > maxAvg) { maxAvg = s.avg}}));
 
+    var maxTitleChar = 0;
+    avgData.forEach(d => d.subgroups.forEach(s => { if (s.name.length > maxTitleChar) { maxTitleChar = s.name.length}}));
+
     return BarChart(avgData, {
       x: d => Number(d[yAxisAttr]),
       label: yAxisAttr,
@@ -68,7 +71,8 @@ function SummaryView({
       colorCategory: groupAttr,
       colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
       colorPalette,
-      yDomain: [0, maxAvg + maxAvg/10]
+      yDomain: [0, maxAvg + maxAvg/10],
+      maxTitleChar
     });
   }
 
@@ -83,7 +87,8 @@ function SummaryView({
     yDomain,
     colorCategory,
     colorCategoryLevels,
-    colorPalette
+    colorPalette,
+    maxTitleChar
   } = {}) {
     
     var largestSubgroup = 1;
@@ -153,7 +158,6 @@ function SummaryView({
 
     const mousemove = function(event) {
       const mouseData = event.srcElement.__data__;
-      console.log(mouseData);
       Tooltip
         .html(`<strong>${xAxisAttr}</strong>: ${mouseData.name}` + `<br /><strong>${yAxisAttr}</strong>: ${mouseData.avg}`)
         .style("left", `${event.x/4}` + "px")
@@ -221,7 +225,8 @@ function SummaryView({
       .style("text-anchor", "end")
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
-      .attr("transform", "rotate(-70)");
+      .attr("transform", "rotate(-60)")
+      .call(wrap, marginBottom - 18);
 
     svg.append('text')
       .attr('class', 'y label')
@@ -235,7 +240,7 @@ function SummaryView({
       .attr('class', 'x label')
       .attr('text-anchor', 'middle')
       .attr('x', width - width/2)
-      .attr('y', height - 32)
+      .attr('y', height - maxTitleChar/2)
       .text(xAxisAttr);
 
     return svg.node();
@@ -260,6 +265,39 @@ function SummaryView({
       </div>
     </div>
   );
+}
+
+function wrap(text, width) {
+  text.each(function () {
+    let text = d3.select(this),
+      words = text.text().split(/\s+/).reverse(),
+      word,
+      line = [],
+      lineNumber = 0,
+      lineHeight = 1,
+      x = text.attr("x"),
+      y = text.attr("y"),
+      dy = 0,
+      tspan = text.text(null)
+                .append("tspan")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan")
+                    .attr("x", 0)
+                    .attr("y", y)
+                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                    .text(word);
+      }
+    }
+  });
 }
 
 SummaryView.propTypes = {

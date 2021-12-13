@@ -111,6 +111,7 @@ function SummaryView({
         .attr('width', width - marginRight- marginLeft)
         .attr('height', height - marginTop - marginBottom)
         .attr('viewBox', [0, 0, width, height])
+        .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
 
     var groups = d3.map(data, function(d) {return(d.group)}).keys()
 
@@ -138,6 +139,35 @@ function SummaryView({
         .range(_.clone(colorPalette).slice(0, colorCategoryLevels.length));
     }
 
+    const Tooltip = d3.select(chartId)
+      .append("div")
+      .attr("class", 'popover');
+
+    const mouseover = function(event) {
+      Tooltip
+        .style("opacity", 1)
+      d3.select(this)
+        .style("stroke", "black")
+        .style("opacity", 1)
+    };
+
+    const mousemove = function(event) {
+      const mouseData = event.srcElement.__data__;
+      console.log(mouseData);
+      Tooltip
+        .html(`<strong>${xAxisAttr}</strong>: ${mouseData.name}` + `<br /><strong>${yAxisAttr}</strong>: ${mouseData.avg}`)
+        .style("left", `${event.x/4}` + "px")
+        .style("top", `${event.y - 48}` + "px")
+    };
+
+    const mouseleave = function(event) {
+      Tooltip
+        .style('opacity', 0)
+      d3.select(this)
+        .style('stroke', 'none')
+        .style('opacity', 1)
+    };
+
     // iterate backwards removing averages that are NaN
     data.forEach(element => {
       var i = element.subgroups.length;
@@ -163,6 +193,9 @@ function SummaryView({
         .attr('width', xSubgroup.bandwidth() < 5 ? 5 : xSubgroup.bandwidth())
         .attr('height', function(d) { return y(0) - y(d.avg); })
         .attr('fill', function(d) { return color(d.name); })
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseleave', mouseleave)
 
     function getBarData(d) {
       var barData = colorCategoryLevels.map(function(key) { return d.subgroups.find(v => v.name == key) });

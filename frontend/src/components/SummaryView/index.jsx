@@ -15,13 +15,11 @@ function SummaryView({
   filterCategoryLevels,
   viewId,
 }) {
-  const isSparse = data.length < 100;
-  // same computation as in Overview * 1/3
-  let height = 500;
-  if (xAxisLevels.length >= 4 && !isSparse) {
-    height = (xAxisLevels.length * height) / 3;
-  } else if (xAxisLevels.length >= 4 && isSparse) {
-    height = 700;
+  const isSparse = data.length > 97;
+
+  let height = 450;
+  if (isSparse) {
+    height = 650;
   }
   
   const minWidth = 700;

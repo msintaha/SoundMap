@@ -173,7 +173,7 @@ function SummaryView({
     function xAxis(g) {
       g.attr('transform', `translate(0, ${height - marginBottom})`)
         .call(d3.axisBottom(x).tickFormat(i => domain[i]))
-       // .attr('font-size', '20px')
+       .attr('font-size', '12px')
     }
   
     function yAxis(g) {
@@ -197,6 +197,14 @@ function SummaryView({
       .attr('dy', '.25em')
       .attr('transform', 'rotate(-90)')
       .text(yAxisAttr);
+
+      svg.append('text')
+      .attr('class', 'x label')
+      .attr('text-anchor', 'middle')
+      .attr('x', width - width/2)
+      .attr('y', height - 32)
+      .text(xAxisAttr);
+
     return svg.node();
   }
 

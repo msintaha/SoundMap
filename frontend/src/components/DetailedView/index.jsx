@@ -44,7 +44,7 @@ function DetailedView({ data, fileDataAttr, sampleRateAttr, xAxisAttr, categoryT
 		<div className="sm-DetailedView-container">
 			<h6 className="sm-DetailedView-heading">DETAILS</h6>
 			<div className="sm-DetailedView-metadata">
-				{Object.entries(data).filter(([k, v]) => !['x', 'y', 'vy', 'vx'].includes(k))
+				{Object.entries(data).filter(([k, v]) => !['x', 'y', 'vy', 'vx', fileDataAttr].includes(k))
 					.map(([key, value]) => <div><strong>{key}:</strong> {isNaN(parseFloat(value)) ? value : parseFloat(value).toFixed(2)}</div>)}
 			</div>
 		</div>

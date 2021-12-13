@@ -173,7 +173,7 @@ function SummaryView({
 SummaryView.propTypes = {
   attributeTypes: PropTypes.shape({
     listical: PropTypes.array,
-    ordinal: PropTypes.array,
+    categorical: PropTypes.array,
     quantitative: PropTypes.array,
   }),
   data: PropTypes.array,

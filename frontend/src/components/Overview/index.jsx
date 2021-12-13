@@ -33,10 +33,10 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
 
   const [panelWidth, setPanelWidth] = useState(0);
   const [xAxisAttr, setXAxis] = useState(defaultQuantitativeAttr);
-  const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [yAxisAttr, setYAxis] = useState(attributeTypes.categorical[0]);
   const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
-  const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
+  const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.categorical[1]);
   const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
   const [elementData, setElementData] = useState('');
   const [toRemove, setToRemove] = useState('');
@@ -311,7 +311,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
                 onChange={({target}) => setYAxis(target.value)}
                 label="Y-Axis"
               >
-                {attributeTypes.ordinal.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+                {attributeTypes.categorical.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
               </Select>
             </FormControl>
             <FormGroup className="sm-Overview-checkboxes">
@@ -328,7 +328,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
                 label="Filter By"
               >
                 <MenuItem value="">None</MenuItem>
-                {attributeTypes.ordinal.filter(a => a !== yAxisAttr).map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+                {attributeTypes.categorical.filter(a => a !== yAxisAttr).map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
               </Select>
             </FormControl>
             <FormGroup className="sm-Overview-checkboxes">
@@ -425,7 +425,7 @@ function hashString(str) {
 Overview.propTypes = {
   attributeTypes: PropTypes.shape({
     listical: PropTypes.array,
-    ordinal: PropTypes.array,
+    categorical: PropTypes.array,
     quantitative: PropTypes.array,
   }),
   data: PropTypes.array,

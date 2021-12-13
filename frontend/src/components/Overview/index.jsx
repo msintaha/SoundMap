@@ -14,13 +14,13 @@ import DetailedView from '../DetailedView';
 
 function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compareMode, onRemoveView, shouldShowRemoveView }) {
   const chartId = `#beeswarm-${viewId}`;
-  const width = 695, radius = 3.2, padding = 1.2;
   const isSparse = data.length < 100;
+  const width = 695, radius = isSparse ? 3.8 : 3.3, padding = isSparse ? 1.5 : 1.2;
   const margin = {
     left: isSparse ? 100 : 70,
     right: 30,
     top: 60,
-    bottom: 30
+    bottom: 10
   };
   let sampleRateAttr, fileDataAttr;
   attributeTypes.listical.forEach(attr => {
@@ -116,7 +116,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     if (yAxisLevels.length >= 4 && !isSparse) {
       height = (yAxisLevels.length * (height - (xAxisAttr.endsWith('max') || xAxisAttr.endsWith('min') ? 0 : margin.top))) / 3;
     } else if (yAxisLevels.length >= 4 && isSparse) {
-      height = 638;
+      height = 635;
     }
 
     const x = d3.scaleLinear()

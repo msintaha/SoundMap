@@ -196,7 +196,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     const mousemove = function(event) {
       const data = event.srcElement.__data__;
       Tooltip
-        .html(`<strong>${xAxisAttr}</strong>: ${data[xAxisAttr]}` + `<br /><strong>${yAxisAttr}</strong>: ${data[yAxisAttr]}`
+        .html(`<strong>${xAxisAttr}</strong>: ${parseFloat(data[xAxisAttr]).toFixed(2)}` + `<br /><strong>${yAxisAttr}</strong>: ${data[yAxisAttr]}`
           + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[colorCategory]}` : ''))
         .style("left", `${event.x / 4}` + "px")
         .style("top", `${event.y - 48}` + "px")
@@ -236,8 +236,9 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     
     svg.selectAll('circle')
       .data(data)
-      .join('circle')
-      .attr('cx', (d) => x(+Number(d[xAxisAttr])))
+      .enter()
+      .append('circle')
+      .attr('cx', (d) => x(Number(d[xAxisAttr])))
       .attr('cy', (d) => y(d[yAxisAttr]))
       .attr('r', radius)
       .attr('fill', (d) => color(d[colorCategory]))

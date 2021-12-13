@@ -159,6 +159,7 @@ function Dashboard() {
                 compareMode={comparisonView}
                 defaultQuantitativeAttr={view.quantitative}
                 viewId={view.id}
+                viewsList={viewsList}
                 attributeTypes={attributeTypes}
                 shouldShowRemoveView={viewsList.length > 1}
                 onRemoveView={(id) => setViewsList(viewsList.filter(view => view.id !== id))}

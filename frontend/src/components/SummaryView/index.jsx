@@ -56,7 +56,7 @@ function SummaryView({
 
     // get largest avg value for y axis height
     var maxAvg = 0;
-    avgData.forEach(d => d.subgroups.forEach(s => {console.log(s.avg); if (s.avg > maxAvg) { maxAvg = s.avg}}));
+    avgData.forEach(d => d.subgroups.forEach(s => { if (s.avg > maxAvg) { maxAvg = s.avg}}));
 
     return BarChart(avgData, {
       x: d => Number(d[yAxisAttr]),

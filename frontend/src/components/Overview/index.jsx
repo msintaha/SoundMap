@@ -198,7 +198,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
       Tooltip
         .html(`<strong>${xAxisAttr}</strong>: ${data[xAxisAttr]}` + `<br /><strong>${yAxisAttr}</strong>: ${data[yAxisAttr]}`
           + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[colorCategory]}` : ''))
-        .style("left", `${event.x - 30}` + "px")
+        .style("left", `${event.x / 4}` + "px")
         .style("top", `${event.y - 48}` + "px")
     };
 

@@ -12,7 +12,7 @@ import SummaryView from '../SummaryView';
 import DetailedView from '../DetailedView';
 
 
-function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compareMode, onRemoveView, shouldShowRemoveView }) {
+function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, viewsList, compareMode, onRemoveView, shouldShowRemoveView }) {
   const chartId = `#beeswarm-${viewId}`;
   const width = 695, radius = 3.2, padding = 1.2;
   const isSparse = data.length < 100;
@@ -212,10 +212,17 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
 
     // innerToRemove - can't use toRemove because it has a state and won't update here 
     // unless the whole page is rendered again
-    let innerToRemove;
+      let innerToRemove;
 
     const mouseclick = function (event) {
-      if (compareMode !== null) { return; }
+        if (compareMode !== null) {
+            d3.selectAll("circle").attr("r", radius);
+            var cur_selected = d3.select(this).attr("id").slice(String(viewId).length + 1);
+            for (var i = 0; i < viewsList.length; i++) {
+                d3.select("#" + "c" + String(viewsList[i].id) + cur_selected).attr("r", radius * 2);
+            }
+            return;
+      }
       setElementData(event.srcElement.__data__);
       if (innerToRemove) {
         d3.select("#" + innerToRemove).attr("r", radius);
@@ -265,6 +272,11 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, compa
     if (toRemove !== '') {
       d3.select("#" + toRemove).attr("r", radius * 2);
     }
+
+      // if in compare mode, reset all radii to standard
+      if (compareMode !== null) {
+          svg.selectAll("circle").attr("r", radius);
+      }
 
     return svg.node();
   }

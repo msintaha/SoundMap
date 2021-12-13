@@ -54,6 +54,10 @@ function SummaryView({
 
     const avgData = filterData.map(y => ({group: y.name, subgroups: checkedColorCategoryLevels.map(x => ({name: x.value, avg: _.meanBy(y.value.filter(z => x.value == z[groupAttr]).map(v => Number((v[yAxisAttr]))))}))}));
 
+    // get largest avg value for y axis height
+    var maxAvg = 0;
+    avgData.forEach(d => d.subgroups.forEach(s => {console.log(s.avg); if (s.avg > maxAvg) { maxAvg = s.avg}}));
+
     return BarChart(avgData, {
       x: d => Number(d[yAxisAttr]),
       label: yAxisAttr,
@@ -64,7 +68,7 @@ function SummaryView({
       colorCategory: groupAttr,
       colorCategoryLevels: filterCategoryLevels.filter(f => f.checked).map(f => f.value),
       colorPalette,
-      yDomain: [0, range.max]
+      yDomain: [0, maxAvg + maxAvg/10]
     });
   }
 

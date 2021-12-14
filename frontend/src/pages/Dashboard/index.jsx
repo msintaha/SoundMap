@@ -12,7 +12,7 @@ import UploadIcon from '@mui/icons-material/UploadFileOutlined';
 function Dashboard() {
   let viewEnd = useRef(null);
   const [attributeTypes, setAttributeTypes] = useState({
-    ordinal: [],
+    categorical: [],
     quantitative: [],
     listical: []
   });
@@ -63,9 +63,9 @@ function Dashboard() {
     setOpen(false);
     setViewsList([{
       id: generateId(),
-      ordinal: attributeTypes.ordinal[0],
+      categorical: attributeTypes.categorical[0],
       quantitative: attributeTypes.quantitative[0],
-      filterBy: attributeTypes.ordinal[1]
+      filterBy: attributeTypes.categorical[1]
     }]);
   }
 
@@ -74,7 +74,7 @@ function Dashboard() {
     setOpen(false);
     setIsConfirmed(false);
     setAttributeTypes({
-      ordinal: [],
+      categorical: [],
       quantitative: [],
       listical: []
     });
@@ -87,9 +87,9 @@ function Dashboard() {
   function onAddView(quantitativeAttr) {
     setViewsList([...viewsList, {
       id: generateId(),
-      ordinal: attributeTypes.ordinal[0],
+      categorical: attributeTypes.categorical[0],
       quantitative: quantitativeAttr,
-      filterBy: attributeTypes.ordinal[1]
+      filterBy: attributeTypes.categorical[1]
     }]);
   }
 
@@ -125,9 +125,9 @@ function Dashboard() {
             <h4>Choose Attribute Types</h4>
             <div className="sm-Dashboard-modalBody">
               <div className="sm-Dashboard-attrContainer">
-                <h5>Ordinal Attributes</h5>
+                <h5>Categorical Attributes</h5>
                 <div className="sm-Dashboard-checkboxes">
-                  {attrs.map(v => <FormControlLabel key={v} sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'ordinal', v)} checked={attributeTypes.ordinal.includes(v)} />} label={v} />)}
+                  {attrs.map(v => <FormControlLabel key={v} sx={{height: 15}} size="small" control={<Checkbox size="small" onChange={(event) => setChecked(event, 'categorical', v)} checked={attributeTypes.categorical.includes(v)} />} label={v} />)}
                 </div>
               </div>
               <div className="sm-Dashboard-attrContainer">

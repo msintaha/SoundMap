@@ -14,13 +14,13 @@ import DetailedView from '../DetailedView';
 
 function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, viewsList, compareMode, onRemoveView, shouldShowRemoveView }) {
   const chartId = `#beeswarm-${viewId}`;
-  const width = 695, radius = 3.2, padding = 1.2;
   const isSparse = data.length < 100;
+  const width = 695, radius = isSparse ? 3.8 : 3.3, padding = isSparse ? 1.5 : 1.2;
   const margin = {
     left: isSparse ? 100 : 70,
     right: 30,
     top: 60,
-    bottom: 30
+    bottom: 10
   };
   let sampleRateAttr, fileDataAttr;
   attributeTypes.listical.forEach(attr => {
@@ -33,10 +33,10 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
 
   const [panelWidth, setPanelWidth] = useState(0);
   const [xAxisAttr, setXAxis] = useState(defaultQuantitativeAttr);
-  const [yAxisAttr, setYAxis] = useState(attributeTypes.ordinal[0]);
+  const [yAxisAttr, setYAxis] = useState(attributeTypes.categorical[0]);
   const [range, setRange] = useState(getRangeWithValues(xAxisAttr, data))
   const [yAxisLevels, setYAxisLevels] = useState(toCheckboxObject(getCategoryLevels(yAxisAttr, data)));
-  const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.ordinal[1]);
+  const [categoryToFilterBy, setCategoryToFilterBy] = useState(attributeTypes.categorical[1]);
   const [filterCategoryLevels, setFilterCategoryLevels] = useState(toCheckboxObject(getCategoryLevels(categoryToFilterBy, data), COLOR_FILTER_LIMIT));
   const [elementData, setElementData] = useState('');
   const [toRemove, setToRemove] = useState('');
@@ -116,7 +116,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
     if (yAxisLevels.length >= 4 && !isSparse) {
       height = (yAxisLevels.length * (height - (xAxisAttr.endsWith('max') || xAxisAttr.endsWith('min') ? 0 : margin.top))) / 3;
     } else if (yAxisLevels.length >= 4 && isSparse) {
-      height = 638;
+      height = 635;
     }
 
     const x = d3.scaleLinear()
@@ -196,9 +196,9 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
     const mousemove = function(event) {
       const data = event.srcElement.__data__;
       Tooltip
-        .html(`<strong>${xAxisAttr}</strong>: ${data[xAxisAttr]}` + `<br /><strong>${yAxisAttr}</strong>: ${data[yAxisAttr]}`
+        .html(`<strong>${xAxisAttr}</strong>: ${parseFloat(data[xAxisAttr]).toFixed(2)}` + `<br /><strong>${yAxisAttr}</strong>: ${data[yAxisAttr]}`
           + (colorCategory ? `<br /> <strong>${colorCategory}</strong>: ${data[colorCategory]}` : ''))
-        .style("left", `${event.x - 30}` + "px")
+        .style("left", `${event.x / 4}` + "px")
         .style("top", `${event.y - 48}` + "px")
     };
 
@@ -243,8 +243,9 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
     
     svg.selectAll('circle')
       .data(data)
-      .join('circle')
-      .attr('cx', (d) => x(+Number(d[xAxisAttr])))
+      .enter()
+      .append('circle')
+      .attr('cx', (d) => x(Number(d[xAxisAttr])))
       .attr('cy', (d) => y(d[yAxisAttr]))
       .attr('r', radius)
       .attr('fill', (d) => color(d[colorCategory]))
@@ -323,7 +324,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
                 onChange={({target}) => setYAxis(target.value)}
                 label="Y-Axis"
               >
-                {attributeTypes.ordinal.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+                {attributeTypes.categorical.map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
               </Select>
             </FormControl>
             <FormGroup className="sm-Overview-checkboxes">
@@ -340,7 +341,7 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
                 label="Filter By"
               >
                 <MenuItem value="">None</MenuItem>
-                {attributeTypes.ordinal.filter(a => a !== yAxisAttr).map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
+                {attributeTypes.categorical.filter(a => a !== yAxisAttr).map(qAttr => <MenuItem key={qAttr} value={qAttr}>{qAttr}</MenuItem>)}
               </Select>
             </FormControl>
             <FormGroup className="sm-Overview-checkboxes">
@@ -437,7 +438,7 @@ function hashString(str) {
 Overview.propTypes = {
   attributeTypes: PropTypes.shape({
     listical: PropTypes.array,
-    ordinal: PropTypes.array,
+    categorical: PropTypes.array,
     quantitative: PropTypes.array,
   }),
   data: PropTypes.array,

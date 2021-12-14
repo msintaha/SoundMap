@@ -15,11 +15,11 @@ function SummaryView({
   filterCategoryLevels,
   viewId,
 }) {
-  const isSparse = data.length > 97;
+  const isSparse = data.length > 96;
 
-  let height = 450;
+  let height = 430;
   if (isSparse) {
-    height = 650;
+    height = 630;
   }
   
   const minWidth = 700;
@@ -158,7 +158,7 @@ function SummaryView({
       const mouseData = event.srcElement.__data__;
       Tooltip
         .html(`<strong>${xAxisAttr}</strong>: ${mouseData.name}` + `<br /><strong>${yAxisAttr}</strong>: ${mouseData.avg.toFixed(2)}`)
-        .style("left", `${event.x - 10}` + "px")
+        .style("left", `${event.x}` + "px")
         .style("top", `${event.y - 48}` + "px")
     };
 

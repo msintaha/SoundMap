@@ -215,13 +215,13 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
       let innerToRemove;
 
     const mouseclick = function (event) {
-        if (compareMode !== null) {
-            d3.selectAll("circle").attr("r", radius);
-            var cur_selected = d3.select(this).attr("id").slice(String(viewId).length + 1);
-            for (var i = 0; i < viewsList.length; i++) {
-                d3.select("#" + "c" + String(viewsList[i].id) + cur_selected).attr("r", radius * 2);
-            }
-            return;
+      if (!!compareMode) {
+        d3.selectAll("circle").attr("r", radius);
+        let currentSelected = d3.select(this).attr("id").slice(String(viewId).length + 1);
+        for (var i = 0; i < viewsList.length; i++) {
+            d3.select("#" + "c" + String(viewsList[i].id) + currentSelected).attr("r", radius * 2);
+        }
+        return;
       }
       setElementData(event.srcElement.__data__);
       if (innerToRemove) {
@@ -274,10 +274,10 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
       d3.select("#" + toRemove).attr("r", radius * 2);
     }
 
-      // if in compare mode, reset all radii to standard
-      if (compareMode !== null) {
-          svg.selectAll("circle").attr("r", radius);
-      }
+    // if in compare mode, reset all radii to standard
+    if (compareMode !== null) {
+        svg.selectAll("circle").attr("r", radius);
+    }
 
     return svg.node();
   }

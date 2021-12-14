@@ -157,7 +157,7 @@ function SummaryView({
     const mousemove = function(event) {
       const mouseData = event.srcElement.__data__;
       Tooltip
-        .html(`<strong>${xAxisAttr}</strong>: ${mouseData.name}` + `<br /><strong>${yAxisAttr}</strong>: ${mouseData.avg.toFixed(2)}`)
+        .html(`<strong>${groupAttr}</strong>: ${mouseData.name}` + `<br /><strong>${yAxisAttr}</strong>: ${mouseData.avg.toFixed(2)}`)
         .style("left", `${event.x}` + "px")
         .style("top", `${event.y - 48}` + "px")
     };

@@ -2,4 +2,4 @@
 
 ![App Interface](./soundmap.png)
 
-### Visit the client and server folders to read the individual setup instructions
+**Note:** Visit the client and server folders to read the individual setup instructions

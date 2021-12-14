@@ -1,6 +1,3 @@
-# SoundMap
-A vis tool for exploring multi attribute sound datasets
-
 ### Setup
 - Node version >=12
 - Install yarn using `npm i -g yarn`

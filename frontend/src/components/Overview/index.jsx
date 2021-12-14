@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import _ from 'lodash';
 
-import { COLORS, COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, getRecycledColors, toCheckboxObject } from '../../utils/attributes';
+import { COLORS, COLOR_FILTER_LIMIT, getCategoryLevels, getRangeWithValues, getRecycledColors, toCheckboxObject, wrap } from '../../utils/attributes';
 import { Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, Select, MenuItem, Input } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import CloseOutlined from '@mui/icons-material/CloseOutlined';
@@ -383,40 +383,6 @@ function Overview({ attributeTypes, data, defaultQuantitativeAttr, viewId, views
       </div>
     </div>
   );
-}
-
-
-function wrap(text, width) {
-  text.each(function () {
-    let text = d3.select(this),
-      words = text.text().split(/\s+/).reverse(),
-      word,
-      line = [],
-      lineNumber = 0,
-      lineHeight = 1,
-      x = text.attr("x"),
-      y = text.attr("y"),
-      dy = 0,
-      tspan = text.text(null)
-                .append("tspan")
-                .attr("x", x)
-                .attr("y", y)
-                .attr("dy", dy + "em");
-    while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text.append("tspan")
-                    .attr("x", x)
-                    .attr("y", y)
-                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                    .text(word);
-      }
-    }
-  });
 }
 
 String.prototype.hashCode = function () {

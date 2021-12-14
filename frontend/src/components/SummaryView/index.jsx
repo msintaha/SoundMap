@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import * as d3 from 'd3';
 
-import { getRangeWithValues } from '../../utils/attributes';
+import { getRangeWithValues, wrap } from '../../utils/attributes';
 
 function SummaryView({
   data, 
@@ -263,39 +263,6 @@ function SummaryView({
       </div>
     </div>
   );
-}
-
-function wrap(text, width) {
-  text.each(function () {
-    let text = d3.select(this),
-      words = text.text().split(/\s+/).reverse(),
-      word,
-      line = [],
-      lineNumber = 0,
-      lineHeight = 1,
-      x = text.attr("x"),
-      y = text.attr("y"),
-      dy = 0,
-      tspan = text.text(null)
-                .append("tspan")
-                .attr("x", x)
-                .attr("y", y)
-                .attr("dy", dy + "em");
-    while (word = words.pop()) {
-      line.push(word);
-      tspan.text(line.join(" "));
-      if (tspan.node().getComputedTextLength() > width) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = text.append("tspan")
-                    .attr("x", 0)
-                    .attr("y", y)
-                    .attr("dy", ++lineNumber * lineHeight + dy + "em")
-                    .text(word);
-      }
-    }
-  });
 }
 
 SummaryView.propTypes = {

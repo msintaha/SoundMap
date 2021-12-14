@@ -26,7 +26,6 @@ if __name__ == '__main__':
 @cross_origin()
 def generate_spectrogram():
     request_body = request.get_json()
-    print('Data', request_body)
     # set sr for now
     w = np.array(request_body["sound_data"])
     sr = request_body["sample_rate"]
@@ -52,7 +51,6 @@ def generate_spectrogram():
 @cross_origin()
 def generate_waveplot():
     request_body = request.get_json()
-    print('Data', request_body)
     # set sr for now
     w = np.array(request_body["sound_data"])
     sr = request_body["sample_rate"]

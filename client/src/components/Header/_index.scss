@@ -1,5 +1,9 @@
 .sm-Header {
-    height: 64px;
+    height: 54px;
+
+    .navbar {
+        height: 48px !important;
+    }
 
     &-title {
         margin-left: 4px;

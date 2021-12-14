@@ -18,6 +18,11 @@
         flex-wrap: wrap;
     }
 
+    .x-label, .y-label {
+        font-weight: 600;
+        font-size: 18px;
+    }
+
     &-legend {
         margin-right: 8px;
         font-size: 13px;

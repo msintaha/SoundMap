@@ -17,9 +17,9 @@ function SummaryView({
 }) {
   const isSparse = data.length > 96;
 
-  let height = 430;
+  let height = 380;
   if (isSparse) {
-    height = 630;
+    height = 620;
   }
   
   const minWidth = 700;
@@ -224,10 +224,11 @@ function SummaryView({
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
       .attr("transform", "rotate(-60)")
+      .style("font-size", isSparse ? '13px' : '15px')
       .call(wrap, marginBottom - 18);
 
     svg.append('text')
-      .attr('class', 'y label')
+      .attr('class', 'y-label')
       .attr('text-anchor', 'end')
       .attr('y', 0)
       .attr('dy', '.25em')
@@ -235,7 +236,7 @@ function SummaryView({
       .text(yAxisAttr);
 
       svg.append('text')
-      .attr('class', 'x label')
+      .attr('class', 'x-label')
       .attr('text-anchor', 'middle')
       .attr('x', width - width/2)
       .attr('y', height - maxTitleChar/2)

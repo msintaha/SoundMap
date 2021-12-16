@@ -53,10 +53,10 @@ function SummaryView({
     const avgData = filterData.map(y => ({group: y.name, subgroups: checkedColorCategoryLevels.map(x => ({name: x.value, avg: _.meanBy(y.value.filter(z => x.value == z[groupAttr]).map(v => Number((v[yAxisAttr]))))}))}));
 
     // get largest avg value for y axis height
-    var maxAvg = 0;
+    let maxAvg = 0;
     avgData.forEach(d => d.subgroups.forEach(s => { if (s.avg > maxAvg) { maxAvg = s.avg}}));
 
-    var maxTitleChar = 0;
+    let maxTitleChar = 0;
     avgData.forEach(d => d.subgroups.forEach(s => { if (s.name.length > maxTitleChar) { maxTitleChar = s.name.length}}));
 
     return BarChart(avgData, {
@@ -89,11 +89,11 @@ function SummaryView({
     maxTitleChar
   } = {}) {
     
-    var largestSubgroup = 1;
-    var subgroupDomain = []
+    let largestSubgroup = 1;
+    let subgroupDomain = [];
     data.forEach(element => {
-      var i = element.subgroups.length;
-      var subgroupSize= 0;
+      let i = element.subgroups.length;
+      let subgroupSize = 0;
       while (i--) {
         if (isNaN(element.subgroups[i].avg)) { 
           continue;
@@ -105,32 +105,32 @@ function SummaryView({
       }
     });
 
-    for (var i = 0; i < largestSubgroup; i++) {
+    for (let i = 0; i < largestSubgroup; i++) {
       subgroupDomain.push(i);
     }
 
     const svg = d3.select(chartId)
-        .append('svg')
-        .attr('width', width - marginRight- marginLeft)
-        .attr('height', height - marginTop - marginBottom)
-        .attr('viewBox', [0, 0, width, height])
-        .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
+      .append('svg')
+      .attr('width', width - marginRight- marginLeft)
+      .attr('height', height - marginTop - marginBottom)
+      .attr('viewBox', [0, 0, width, height])
+      .attr('style', 'max-width: 100%; height: auto; height: intrinsic;');
 
-    var groups = d3.map(data, function(d) {return(d.group)}).keys()
+    const groups = d3.map(data, function(d) {return(d.group)}).keys();
 
     // Define scale for X axis
-    var x = d3.scaleBand()
+    x = d3.scaleBand()
       .domain(groups)
       .range([marginLeft, width - marginRight])
       .padding(0.1);
 
     // Define scale for Y axis
-    var  y = d3.scaleLinear()
+    const y = d3.scaleLinear()
       .domain(yDomain)
       .range([height - marginBottom, marginTop]);
 
     // Another scale for subgroup position
-    var xSubgroup = d3.scaleBand()
+    const xSubgroup = d3.scaleBand()
       .domain(subgroupDomain)
       .range([0, x.bandwidth()])
       .padding([0.05])
@@ -172,7 +172,7 @@ function SummaryView({
 
     // iterate backwards removing averages that are NaN
     data.forEach(element => {
-      var i = element.subgroups.length;
+      let i = element.subgroups.length;
         while (i--) {
           if (isNaN(element.subgroups[i].avg)) { 
             element.subgroups.splice(i, 1);
@@ -200,21 +200,20 @@ function SummaryView({
         .on('mouseleave', mouseleave)
 
     function getBarData(d) {
-      var barData = colorCategoryLevels.map(function(key) { return d.subgroups.find(v => v.name == key) });
-      var filteredBarData = barData.filter(v => !(v === undefined));
+      const barData = colorCategoryLevels.map(function(key) { return d.subgroups.find(v => v.name == key) });
+      const filteredBarData = barData.filter(v => !(v === undefined));
       return filteredBarData;
     }
 
     function xAxis(g) {
       g.attr('transform', `translate(0, ${height - marginBottom})`)
         .call(d3.axisBottom(x).tickFormat(i => domain[i]))
-       .attr('font-size', '12px')
+        .attr('font-size', '12px');
     }
   
     function yAxis(g) {
       g.attr('transform', `translate(${marginLeft}, 0)`)
-        .call(d3.axisLeft(y).ticks(null, data.format))
-        //.attr('font-size', '20px')
+        .call(d3.axisLeft(y).ticks(null, data.format));
     }
 
     svg.append('g').call(yAxis);
@@ -267,12 +266,13 @@ function SummaryView({
 }
 
 SummaryView.propTypes = {
-  attributeTypes: PropTypes.shape({
-    listical: PropTypes.array,
-    categorical: PropTypes.array,
-    quantitative: PropTypes.array,
-  }),
+  colorPalette: PropTypes.array,
   data: PropTypes.array,
+  xAxisAttr: PropTypes.string, 
+  xAxisLevels: PropTypes.array,
+  groupAttr: PropTypes.string,
+  yAxisAttr: PropTypes.string,
+  filterCategoryLevels: PropTypes.array,
 }
 
 export default SummaryView;
